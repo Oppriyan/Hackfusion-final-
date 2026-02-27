@@ -142,3 +142,58 @@ def create_order(customer_id: str = None, medicine: str = None, quantity: int = 
             "code": "internal_error",
             "message": "Transaction failed"
         }, 500
+    # -------------------------------------------------
+# CUSTOMER ORDER HISTORY
+# -------------------------------------------------
+
+def get_customer_history(customer_id: str):
+
+    if not customer_id:
+        return {
+            "status": "error",
+            "code": "validation_error",
+            "message": "Customer ID is required"
+        }, 400
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("""
+            SELECT product_name, quantity, purchase_date, total_price
+            FROM orders
+            WHERE customer_id = ?
+            ORDER BY purchase_date DESC
+        """, (customer_id,))
+
+        rows = cursor.fetchall()
+        conn.close()
+
+        if not rows:
+            return {
+                "status": "success",
+                "data": []
+            }, 200
+
+        history = []
+
+        for row in rows:
+            history.append({
+                "medicine": row["product_name"],
+                "quantity": row["quantity"],
+                "date": row["purchase_date"],
+                "total_price": row["total_price"]
+            })
+
+        return {
+            "status": "success",
+            "data": history
+        }, 200
+
+    except Exception:
+        conn.close()
+        return {
+            "status": "error",
+            "code": "internal_error",
+            "message": "Failed to fetch order history"
+        }, 500
