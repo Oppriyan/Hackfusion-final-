@@ -1,0 +1,94 @@
+import sqlite3
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parents[2]
+DATA_DIR = BASE_DIR / "data"
+DATA_DIR.mkdir(exist_ok=True)
+
+DB_PATH = DATA_DIR / "pharmacy.db"
+
+
+def get_db():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def init_db():
+    conn = get_db()
+    cursor = conn.cursor()
+
+    # -------------------------------------------------
+    # MEDICINES TABLE
+    # -------------------------------------------------
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS medicines (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        product_id INTEGER UNIQUE,
+        name TEXT NOT NULL,
+        pzn TEXT,
+        price REAL,
+        package_size TEXT,
+        description TEXT,
+        stock INTEGER DEFAULT 100,
+        prescription_required TEXT DEFAULT "No"
+    )
+    """)
+
+    # -------------------------------------------------
+    # CUSTOMERS TABLE
+    # -------------------------------------------------
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS customers (
+        id TEXT PRIMARY KEY,
+        age INTEGER,
+        gender TEXT
+    )
+    """)
+
+    # -------------------------------------------------
+    # ORDERS TABLE
+    # -------------------------------------------------
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS orders (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        customer_id TEXT,
+        product_name TEXT,
+        quantity INTEGER,
+        purchase_date TEXT,
+        total_price REAL,
+        dosage_frequency TEXT,
+        prescription_required TEXT
+    )
+    """)
+
+    # -------------------------------------------------
+    # PRESCRIPTIONS TABLE (PRODUCTION-GRADE)
+    # -------------------------------------------------
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS prescriptions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        customer_id TEXT NOT NULL,
+        medicine_id INTEGER NOT NULL,
+        verified_at TEXT,
+        expires_at TEXT,
+        UNIQUE(customer_id, medicine_id)
+    )
+    """)
+
+    # -------------------------------------------------
+    # SAFE MIGRATION CHECKS
+    # -------------------------------------------------
+
+    # Ensure prescription_required column exists in medicines
+    cursor.execute("PRAGMA table_info(medicines)")
+    columns = [col[1] for col in cursor.fetchall()]
+
+    if "prescription_required" not in columns:
+        cursor.execute("""
+            ALTER TABLE medicines
+            ADD COLUMN prescription_required TEXT DEFAULT "No"
+        """)
+
+    conn.commit()
+    conn.close()
