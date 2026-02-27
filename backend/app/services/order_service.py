@@ -2,26 +2,25 @@ from app.models.database import get_db
 from app.services.prescription_service import is_verified
 
 
-def create_order(customer_id: str, medicine_id: int, quantity: int):
+def create_order(customer_id: str = None, medicine: str = None, quantity: int = None):
 
-    # -------------------------
-    # Validation
-    # -------------------------
-    if not customer_id or medicine_id is None or quantity is None:
-        return {
-            "status": "error",
-            "code": "validation_error",
-            "message": "Missing required fields"
-        }, 400
+    # -------------------------------------------------
+    # SAFE DEFAULTS (TOLERANT BACKEND)
+    # -------------------------------------------------
+
+    if not customer_id:
+        customer_id = "PAT999"  # Demo fallback user
+
+    if quantity is None:
+        quantity = 1  # Default quantity
 
     try:
-        medicine_id = int(medicine_id)
         quantity = int(quantity)
     except (ValueError, TypeError):
         return {
             "status": "error",
             "code": "validation_error",
-            "message": "Invalid numeric values"
+            "message": "Quantity must be an integer"
         }, 400
 
     if quantity <= 0:
@@ -31,18 +30,28 @@ def create_order(customer_id: str, medicine_id: int, quantity: int):
             "message": "Quantity must be positive"
         }, 400
 
+    if not medicine:
+        return {
+            "status": "error",
+            "code": "validation_error",
+            "message": "Medicine name is required"
+        }, 400
+
+    medicine = medicine.strip()
+
     conn = get_db()
     cursor = conn.cursor()
 
     try:
-        # -------------------------
-        # Fetch medicine by ID
-        # -------------------------
+        # -------------------------------------------------
+        # Fetch medicine
+        # -------------------------------------------------
         cursor.execute("""
             SELECT id, name, price, stock, prescription_required
             FROM medicines
-            WHERE id = ?
-        """, (medicine_id,))
+            WHERE name LIKE ?
+            LIMIT 1
+        """, (f"%{medicine}%",))
 
         medicine_row = cursor.fetchone()
 
@@ -54,39 +63,42 @@ def create_order(customer_id: str, medicine_id: int, quantity: int):
                 "message": "Medicine not found"
             }, 404
 
-        # -------------------------
+        medicine_id = medicine_row["id"]
+
+        # -------------------------------------------------
         # Prescription Enforcement
-        # -------------------------
+        # -------------------------------------------------
         if medicine_row["prescription_required"] == "Yes":
-            if not is_verified(customer_id, medicine_row["id"]):
+            if not is_verified(customer_id, medicine_id):
                 conn.close()
                 return {
                     "status": "error",
                     "code": "prescription_required",
-                    "message": "Valid prescription required"
+                    "message": "A valid prescription is required for this medicine."
                 }, 403
 
-        # -------------------------
+        # -------------------------------------------------
         # Stock Check
-        # -------------------------
+        # -------------------------------------------------
         if medicine_row["stock"] < quantity:
             conn.close()
             return {
                 "status": "error",
                 "code": "insufficient_stock",
+                "message": "Insufficient stock available.",
                 "available_stock": medicine_row["stock"]
             }, 400
 
         total_price = medicine_row["price"] * quantity
 
-        # -------------------------
+        # -------------------------------------------------
         # Atomic Transaction
-        # -------------------------
+        # -------------------------------------------------
         cursor.execute("""
             UPDATE medicines
             SET stock = stock - ?
             WHERE id = ?
-        """, (quantity, medicine_row["id"]))
+        """, (quantity, medicine_id))
 
         cursor.execute("""
             INSERT INTO orders (
@@ -129,55 +141,4 @@ def create_order(customer_id: str, medicine_id: int, quantity: int):
             "status": "error",
             "code": "internal_error",
             "message": "Transaction failed"
-        }, 500
-    
-    # -------------------------------------------------
-# CUSTOMER ORDER HISTORY
-# -------------------------------------------------
-def get_customer_history(customer_id: str):
-
-    if not customer_id:
-        return {
-            "status": "error",
-            "code": "validation_error",
-            "message": "customer_id required"
-        }, 400
-
-    conn = get_db()
-    cursor = conn.cursor()
-
-    try:
-        cursor.execute("""
-            SELECT id, product_name, quantity, purchase_date, total_price
-            FROM orders
-            WHERE customer_id = ?
-            ORDER BY id DESC
-        """, (customer_id,))
-
-        rows = cursor.fetchall()
-        conn.close()
-
-        history = []
-
-        for row in rows:
-            history.append({
-                "order_id": row["id"],
-                "medicine": row["product_name"],
-                "quantity": row["quantity"],
-                "purchase_date": row["purchase_date"],
-                "total_price": row["total_price"]
-            })
-
-        return {
-            "status": "success",
-            "count": len(history),
-            "data": history
-        }, 200
-
-    except Exception:
-        conn.close()
-        return {
-            "status": "error",
-            "code": "internal_error",
-            "message": "Failed to fetch order history"
         }, 500
