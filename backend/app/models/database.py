@@ -1,6 +1,10 @@
 import sqlite3
 from pathlib import Path
 
+# -------------------------------------------------
+# PATH CONFIGURATION
+# -------------------------------------------------
+
 BASE_DIR = Path(__file__).resolve().parents[2]
 DATA_DIR = BASE_DIR / "data"
 DATA_DIR.mkdir(exist_ok=True)
@@ -8,11 +12,19 @@ DATA_DIR.mkdir(exist_ok=True)
 DB_PATH = DATA_DIR / "pharmacy.db"
 
 
+# -------------------------------------------------
+# DATABASE CONNECTION
+# -------------------------------------------------
+
 def get_db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
+
+# -------------------------------------------------
+# DATABASE INITIALIZATION
+# -------------------------------------------------
 
 def init_db():
     conn = get_db()
@@ -63,15 +75,18 @@ def init_db():
     """)
 
     # -------------------------------------------------
-    # PRESCRIPTIONS TABLE (PRODUCTION-GRADE)
+    # PRESCRIPTIONS TABLE (UPLOAD + APPROVAL SYSTEM)
     # -------------------------------------------------
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS prescriptions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         customer_id TEXT NOT NULL,
         medicine_id INTEGER NOT NULL,
+        file_path TEXT,
+        status TEXT DEFAULT 'Pending',
         verified_at TEXT,
         expires_at TEXT,
+        uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(customer_id, medicine_id)
     )
     """)
@@ -82,13 +97,26 @@ def init_db():
 
     # Ensure prescription_required column exists in medicines
     cursor.execute("PRAGMA table_info(medicines)")
-    columns = [col[1] for col in cursor.fetchall()]
+    medicine_columns = [col[1] for col in cursor.fetchall()]
 
-    if "prescription_required" not in columns:
+    if "prescription_required" not in medicine_columns:
         cursor.execute("""
             ALTER TABLE medicines
             ADD COLUMN prescription_required TEXT DEFAULT "No"
         """)
+
+    # Ensure new columns exist in prescriptions table
+    cursor.execute("PRAGMA table_info(prescriptions)")
+    prescription_columns = [col[1] for col in cursor.fetchall()]
+
+    if "file_path" not in prescription_columns:
+        cursor.execute("ALTER TABLE prescriptions ADD COLUMN file_path TEXT")
+
+    if "status" not in prescription_columns:
+        cursor.execute("ALTER TABLE prescriptions ADD COLUMN status TEXT DEFAULT 'Pending'")
+
+    if "uploaded_at" not in prescription_columns:
+        cursor.execute("ALTER TABLE prescriptions ADD COLUMN uploaded_at DATETIME")
 
     conn.commit()
     conn.close()

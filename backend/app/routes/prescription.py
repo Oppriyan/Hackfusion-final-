@@ -1,17 +1,41 @@
 from flask import Blueprint, request, jsonify
 from app.services.prescription_service import (
-    verify_prescription,
-    get_prescription_status
+    get_prescription_status,
+    upload_prescription,
+    approve_prescription
 )
 
 prescription_bp = Blueprint("prescription", __name__)
 
 
+
+
 # -------------------------------------------------
-# VERIFY PRESCRIPTION
+# UPLOAD PRESCRIPTION FILE
 # -------------------------------------------------
-@prescription_bp.route("/verify-prescription", methods=["POST"])
-def verify_prescription_route():
+@prescription_bp.route("/upload-prescription", methods=["POST"])
+def upload_prescription_route():
+    try:
+        customer_id = request.form.get("customer_id")
+        medicine_id = request.form.get("medicine_id")
+        file = request.files.get("file")
+
+        response, status = upload_prescription(customer_id, medicine_id, file)
+        return jsonify(response), status
+
+    except Exception:
+        return jsonify({
+            "status": "error",
+            "code": "internal_error",
+            "message": "Upload endpoint failed"
+        }), 500
+
+
+# -------------------------------------------------
+# APPROVE / REJECT PRESCRIPTION (ADMIN)
+# -------------------------------------------------
+@prescription_bp.route("/approve-prescription", methods=["POST"])
+def approve_prescription_route():
 
     try:
         data = request.get_json()
@@ -24,16 +48,17 @@ def verify_prescription_route():
             }), 400
 
         customer_id = data.get("customer_id")
-        medicine = data.get("medicine")
+        medicine_id = data.get("medicine_id")
+        approve = data.get("approve", True)
 
-        response, status = verify_prescription(customer_id, medicine)
+        response, status = approve_prescription(customer_id, medicine_id, approve)
         return jsonify(response), status
 
     except Exception:
         return jsonify({
             "status": "error",
             "code": "internal_error",
-            "message": "Prescription verification failed"
+            "message": "Approval endpoint failed"
         }), 500
 
 
@@ -54,9 +79,9 @@ def prescription_status_route():
             }), 400
 
         customer_id = data.get("customer_id")
-        medicine = data.get("medicine")
+        medicine_id = data.get("medicine_id")
 
-        response, status = get_prescription_status(customer_id, medicine)
+        response, status = get_prescription_status(customer_id, medicine_id)
         return jsonify(response), status
 
     except Exception:

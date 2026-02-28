@@ -8,20 +8,23 @@ def detect_intent(message: str):
 
     message = message.lower()
 
-    if any(word in message for word in ["buy", "order", "purchase"]):
-        return "create_order"
-
-    if any(word in message for word in ["history", "past orders"]):
+    # HISTORY FIRST (important)
+    if any(word in message for word in ["history", "past orders", "previous orders"]):
         return "order_history"
 
+    # PRESCRIPTION
     if any(word in message for word in ["verify prescription", "upload prescription"]):
         return "verify_prescription"
 
+    # CREATE ORDER
+    if any(word in message for word in ["buy", "order", "purchase"]):
+        return "create_order"
+
+    # INVENTORY
     if any(word in message for word in ["available", "stock", "have"]):
         return "check_inventory"
 
-    return "check_inventory"  # Safe fallback
-
+    return "check_inventory"
 
 # -------------------------------------------
 # MAIN ORCHESTRATOR

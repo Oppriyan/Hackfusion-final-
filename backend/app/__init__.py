@@ -14,28 +14,25 @@ from app.routes.webhook import webhook_bp
 
 
 def create_app():
-    # Load environment variables
     load_dotenv()
 
     app = Flask(__name__)
-
-    # Enable CORS for frontend / voice integrations
     CORS(app)
 
     # Initialize database
     init_db()
 
-    # Load Excel data safely (idempotent)
+    # Load Excel data safely
     load_all_data()
 
     # Register blueprints
-    app.register_blueprint(inventory_bp)
+    app.register_blueprint(inventory_bp, url_prefix="/inventory")
     app.register_blueprint(order_bp)
     app.register_blueprint(chat_bp)
     app.register_blueprint(prescription_bp)
     app.register_blueprint(webhook_bp)
 
-    # Health check endpoint
+    # Health check
     @app.route("/health", methods=["GET"])
     def health():
         return {"status": "ok"}, 200
