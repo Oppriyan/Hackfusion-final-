@@ -24,10 +24,56 @@ def create_order_route():
         medicine_id = data.get("medicine_id")
         quantity = data.get("quantity")
 
+        # -------------------------
+        # Input Validation Layer
+        # -------------------------
+
+        if not customer_id:
+            return jsonify({
+                "status": "error",
+                "code": "validation_error",
+                "message": "customer_id is required"
+            }), 400
+
+        if not medicine_id:
+            return jsonify({
+                "status": "error",
+                "code": "validation_error",
+                "message": "medicine_id is required"
+            }), 400
+
+        if not quantity:
+            return jsonify({
+                "status": "error",
+                "code": "validation_error",
+                "message": "quantity is required"
+            }), 400
+
+        try:
+            quantity = int(quantity)
+            if quantity <= 0:
+                return jsonify({
+                    "status": "error",
+                    "code": "validation_error",
+                    "message": "quantity must be greater than 0"
+                }), 400
+        except Exception:
+            return jsonify({
+                "status": "error",
+                "code": "validation_error",
+                "message": "quantity must be a number"
+            }), 400
+
+        # -------------------------
+        # Business Logic Call
+        # -------------------------
+
         response, status = create_order(customer_id, medicine_id, quantity)
+
         return jsonify(response), status
 
-    except Exception:
+    except Exception as e:
+        print("CREATE ORDER ERROR:", str(e))  # <-- important debug log
         return jsonify({
             "status": "error",
             "code": "internal_error",
