@@ -1,33 +1,10 @@
 # app/services/agent_service.py
 
-# -------------------------------------------
-# INTENT DETECTION
-# -------------------------------------------
+from agents.core.agent_runner import run_agent
 
-def detect_intent(message: str):
-
-    message = message.lower()
-
-    # HISTORY FIRST (important)
-    if any(word in message for word in ["history", "past orders", "previous orders"]):
-        return "order_history"
-
-    # PRESCRIPTION
-    if any(word in message for word in ["verify prescription", "upload prescription"]):
-        return "verify_prescription"
-
-    # CREATE ORDER
-    if any(word in message for word in ["buy", "order", "purchase"]):
-        return "create_order"
-
-    # INVENTORY
-    if any(word in message for word in ["available", "stock", "have"]):
-        return "check_inventory"
-
-    return "check_inventory"
 
 # -------------------------------------------
-# MAIN ORCHESTRATOR
+# MAIN ORCHESTRATOR (OPENAI-DRIVEN)
 # -------------------------------------------
 
 def process_chat_message(message: str):
@@ -53,28 +30,19 @@ def process_chat_message(message: str):
 
     try:
 
-        intent = detect_intent(message)
+        # 🔥 Call your real OpenAI agent
+        agent_result = run_agent(message)
 
-        if intent == "check_inventory":
-            response_text = handle_inventory(message)
-
-        elif intent == "create_order":
-            response_text = handle_create_order(message)
-
-        elif intent == "order_history":
-            response_text = handle_history(message)
-
-        elif intent == "verify_prescription":
-            response_text = handle_prescription(message)
-
-        else:
-            response_text = "I couldn't understand your request."
+        # run_agent already returns:
+        # {
+        #   "status": "success",
+        #   "response": "text reply"
+        # }
 
         return {
             "status": "success",
             "data": {
-                "intent": intent,
-                "reply": response_text
+                "reply": agent_result.get("response", "")
             }
         }, 200
 
@@ -82,25 +50,5 @@ def process_chat_message(message: str):
         return {
             "status": "error",
             "code": "internal_error",
-            "message": "Agent processing failed"
+            "message": "AI processing failed"
         }, 500
-
-
-# -------------------------------------------
-# HANDLERS (FOUNDATION STUBS)
-# -------------------------------------------
-
-def handle_inventory(message: str):
-    return "Inventory intent detected."
-
-
-def handle_create_order(message: str):
-    return "Order intent detected."
-
-
-def handle_history(message: str):
-    return "Order history intent detected."
-
-
-def handle_prescription(message: str):
-    return "Prescription verification intent detected."
