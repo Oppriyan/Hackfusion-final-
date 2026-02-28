@@ -4,7 +4,9 @@ from agents.tools.tools import (
     check_inventory,
     create_order,
     verify_prescription,
-    get_customer_history
+    get_customer_history,
+    update_stock,
+    upload_prescription
 )
 
 
@@ -17,6 +19,7 @@ def handle_intent(request):
     customer_id = request.customer_id or "PAT001"
     medicine = request.medicine_name
     quantity = request.quantity or 1
+    delta = request.delta
 
     # ==================================================
     # INVENTORY
@@ -67,15 +70,39 @@ def handle_intent(request):
                 }
 
         # Step 3 — Create Order
-        order = create_order(customer_id, medicine, quantity)
-
-        return order
+        return create_order(customer_id, medicine, quantity)
 
     # ==================================================
     # HISTORY
     # ==================================================
     if intent == "history":
-        return get_customer_history(customer_id)
+
+        history = get_customer_history(customer_id)
+
+        if history.get("status") != "success":
+            return history
+
+        return history
+
+    # ==================================================
+    # UPDATE STOCK
+    # ==================================================
+    if intent == "update_stock":
+
+        if not medicine or delta is None:
+            return {"status": "error", "message": "Medicine and stock delta required"}
+
+        return update_stock(medicine, delta)
+
+    # ==================================================
+    # UPLOAD PRESCRIPTION
+    # ==================================================
+    if intent == "upload_prescription":
+
+        if not medicine:
+            return {"status": "error", "message": "Medicine name required"}
+
+        return upload_prescription(customer_id, medicine)
 
     # ==================================================
     # SMALLTALK
