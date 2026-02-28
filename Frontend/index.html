@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Web Agent – Smart Pharmacy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+
+<!-- ============================================================
+     NAVBAR
+============================================================ -->
+<nav class="navbar" role="navigation" aria-label="Main Navigation">
+  <div class="nav-inner">
+    <div class="nav-logo" onclick="goTo('home')" role="button" tabindex="0" aria-label="AI Web Agent Home">
+      <div class="nav-logo-icon">⚕</div>
+      AI Web Agent
+    </div>
+
+    <ul class="nav-links" role="list">
+      <li><a onclick="goTo('home')" id="nav-home" class="active" role="button" tabindex="0" aria-current="page">Home</a></li>
+      <li><a onclick="goTo('about')" id="nav-about" role="button" tabindex="0">About</a></li>
+      <li><a onclick="goTo('dashboard')" id="nav-dashboard" role="button" tabindex="0">AI + Admin Dashboard</a></li>
+      <li><a onclick="goTo('admin')" id="nav-admin" role="button" tabindex="0">Admin Panel</a></li>
+      <li><a onclick="goTo('endpoints')" id="nav-endpoints" role="button" tabindex="0">API Docs</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <div class="notif-wrap">
+        <button class="nav-icon-btn" onclick="toggleNotif()" aria-label="Notifications" aria-haspopup="true">
+          🔔<span class="badge-dot" id="notifDot">3</span>
+        </button>
+        <div class="notif-drop" id="notifDrop" role="menu">
+          <div class="notif-head"><span>Notifications</span><button onclick="clearNotifs()" style="background:none;color:var(--b2);font-size:.78rem;font-weight:700">Clear all</button></div>
+          <div id="notifList"></div>
+        </div>
+      </div>
+      <button class="btn-safety" aria-label="Safety & Compliance">🛡️ <span>Safety</span></button>
+      <button class="nav-icon-btn" aria-label="Cart (3 items)">🛒<span class="badge-dot">3</span></button>
+      <button class="btn-login" onclick="openModal('loginModal')" aria-label="Login">Login</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ============================================================
+     HOME PAGE
+============================================================ -->
+<div id="page-home" class="page active">
+  <div class="hero-bg">
+    <div class="blob blob1"></div>
+    <div class="blob blob2"></div>
+  </div>
+  <div class="grid-bg"></div>
+
+  <section class="hero" aria-label="Hero">
+    <div class="hero-content">
+      <div class="hero-badge"><span class="dot dot-green"></span>AI System Operational · Compliance Engine Active</div>
+      <h1 class="hero-title">The Future of<br><span class="hero-title-grad">Smart Pharmacy</span><br>is Here</h1>
+      <p class="hero-sub">AI-powered medication ordering, real-time inventory management, and prescription verification — all in one intelligent platform built for healthcare professionals.</p>
+      <div class="hero-btns">
+        <button class="btn-primary" onclick="goTo('dashboard')" aria-label="Get Started">🚀 Get Started</button>
+        <button class="btn-secondary" aria-label="Watch Demo">▶ Watch Demo</button>
+      </div>
+      <div class="search-hero">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="search" class="search-input" id="heroSearch" placeholder="Search medicine by name, category..." aria-label="Search medicine" autocomplete="off">
+          <button class="search-btn" onclick="doSearch()" aria-label="Search">Search</button>
+        </div>
+        <div class="search-drop" id="searchDrop" role="listbox"></div>
+        <div class="search-tags">
+          <span class="stag" onclick="fillSearch('Paracetamol')">💊 Paracetamol</span>
+          <span class="stag" onclick="fillSearch('Ibuprofen')">🧴 Ibuprofen</span>
+          <span class="stag" onclick="fillSearch('Amoxicillin')">💉 Amoxicillin</span>
+          <span class="stag" onclick="fillSearch('Cetirizine')">🩺 Cetirizine</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual" aria-hidden="true">
+      <div class="hero-orb">
+        <div class="ring ring1"></div>
+        <div class="ring ring2"></div>
+        <div class="ring ring3"></div>
+        <div class="orb-core">
+          <span class="orb-emoji">💊</span>
+          <span class="orb-label">AI Rx</span>
+        </div>
+        <div class="fpill fp1">Paracetamol ✓</div>
+        <div class="fpill fp2">Stock: 32 🟢</div>
+        <div class="fpill fp3">Order #1023 ✅</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="stats-strip">
+    <div class="stats-inner">
+      <div class="stat-item"><span class="stat-num">98.7%</span><span class="stat-lbl">Prescription Accuracy</span></div>
+      <div class="stat-div"></div>
+      <div class="stat-item"><span class="stat-num">1,200+</span><span class="stat-lbl">Medicines in Stock</span></div>
+      <div class="stat-div"></div>
+      <div class="stat-item"><span class="stat-num">5,000+</span><span class="stat-lbl">Orders Processed</span></div>
+      <div class="stat-div"></div>
+      <div class="stat-item"><span class="stat-num">24/7</span><span class="stat-lbl">AI Assistance</span></div>
+    </div>
+  </div>
+
+  <section class="features" aria-labelledby="feat-title">
+    <div class="section-wrap">
+      <div class="feat-header">
+        <h2 id="feat-title">Everything You Need in One Platform</h2>
+        <p>Powerful tools for modern pharmacy management, driven by AI</p>
+      </div>
+      <div class="feat-grid">
+        <div class="feat-card" onclick="goTo('dashboard')" tabindex="0" role="button">
+          <span class="feat-icon">🤖</span>
+          <h3>AI Medication Assistant</h3>
+          <p>Chat or voice-based ordering with full prescription validation, compliance checks, and intelligent drug interaction alerts.</p>
+          <span class="feat-link">Try Now →</span>
+        </div>
+        <div class="feat-card featured" onclick="goTo('admin')" tabindex="0" role="button">
+          <span class="feat-icon">📊</span>
+          <h3>Admin Dashboard</h3>
+          <p>Real-time stock tracking, revenue analytics, top sellers, low stock alerts, and full order management in beautiful charts.</p>
+          <span class="feat-link">Open Dashboard →</span>
+        </div>
+        <div class="feat-card" onclick="goTo('dashboard')" tabindex="0" role="button">
+          <span class="feat-icon">📄</span>
+          <h3>Prescription Verification</h3>
+          <p>Automated prescription upload and verification. No restricted medicines without valid prescriptions — ever.</p>
+          <span class="feat-link">Learn More →</span>
+        </div>
+        <div class="feat-card" tabindex="0" role="button">
+          <span class="feat-icon">🔔</span>
+          <h3>Smart Notifications</h3>
+          <p>Real-time alerts for low stock, new offers, refill arrivals, and order updates — pushed directly to your panel.</p>
+          <span class="feat-link">See Alerts →</span>
+        </div>
+        <div class="feat-card" onclick="goTo('admin')" tabindex="0" role="button">
+          <span class="feat-icon">👥</span>
+          <h3>Customer Management</h3>
+          <p>Full customer profiles, order histories, prescription records, and the ability to add new patients with ease.</p>
+          <span class="feat-link">Manage →</span>
+        </div>
+        <div class="feat-card" onclick="goTo('dashboard')" tabindex="0" role="button">
+          <span class="feat-icon">🎙️</span>
+          <h3>Voice AI Agent</h3>
+          <p>Hands-free medication ordering through the Vapi-powered voice assistant. Just speak and the AI handles the rest.</p>
+          <span class="feat-link">Try Voice →</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-sec" aria-labelledby="cta-title">
+    <div class="cta-inner">
+      <div>
+        <h2 id="cta-title">Ready to Transform Your Pharmacy?</h2>
+        <p>Join hundreds of pharmacies already using AI Web Agent to streamline operations, reduce errors, and serve patients better.</p>
+        <button class="btn-primary" onclick="goTo('dashboard')">🚀 Get Started Free</button>
+      </div>
+      <div class="cta-card">
+        <div class="cta-stat"><span>📦</span><div><strong>1,023</strong><small>Orders Today</small></div></div>
+        <div class="cta-stat"><span>💰</span><div><strong>$48,200</strong><small>Revenue This Month</small></div></div>
+        <div class="cta-stat"><span>🟢</span><div><strong>Online</strong><small>System Status</small></div></div>
+        <div class="cta-stat"><span>🛡️</span><div><strong>12 Blocked</strong><small>Rx Violations Today</small></div></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="nav-logo" style="color:white"><div class="nav-logo-icon">⚕</div>AI Web Agent</div>
+      <nav class="footer-links">
+        <a onclick="goTo('home')">Home</a>
+        <a onclick="goTo('about')">About</a>
+        <a onclick="goTo('dashboard')">Dashboard</a>
+        <a onclick="goTo('admin')">Admin Panel</a>
+        <a onclick="goTo('endpoints')">API Docs</a>
+      </nav>
+      <div class="footer-meta"><span class="dot dot-green"></span>All Systems Operational<span style="margin-left:1rem">© 2024 AI Web Agent</span></div>
+    </div>
+  </footer>
+</div>
+
+<!-- ============================================================
+     ABOUT PAGE
+============================================================ -->
+<div id="page-about" class="page">
+  <div class="about-hero">
+    <div class="hero-badge" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:white;margin-bottom:1.25rem;display:inline-flex"><span class="dot dot-green"></span>Trusted by 500+ Pharmacies Worldwide</div>
+    <h1>About AI Web Agent</h1>
+    <p>We're building the future of intelligent, compliant, and human-centered pharmacy management — powered by artificial intelligence and driven by an unwavering commitment to patient safety.</p>
+  </div>
+
+  <div class="about-grid">
+    <div class="about-text">
+      <h2>Our Story</h2>
+      <p>AI Web Agent was born from a simple observation: pharmacy management in the modern world was still stuck in outdated systems — paper prescriptions, manual inventory tracking, and zero real-time insights. We saw an opportunity to change that fundamentally.</p>
+      <p>Founded by a team of healthcare technologists, AI researchers, and pharmacists, AI Web Agent set out to build a platform that doesn't just digitize existing workflows — it reimagines them entirely. We asked ourselves: what would pharmacy management look like if it were designed from the ground up today, with everything we know about AI, cloud computing, and user experience?</p>
+      <p>The result is a platform that brings together natural language AI (so pharmacists and patients can just talk to it), real-time inventory intelligence, prescription compliance enforcement, and a beautiful dashboard that makes complex data feel simple and actionable.</p>
+      <p>Today, we serve hundreds of pharmacies across the country, processing thousands of orders daily, catching prescription violations before they happen, and helping pharmacy teams work smarter — not harder. Our AI assistant handles medication inquiries, flags drug interactions, verifies prescriptions, and even manages reorder alerts automatically.</p>
+      <p>But what we're most proud of isn't the technology. It's the patient safety outcomes. Every prescription block, every low-stock alert, every dosage warning caught by our compliance engine represents a real person being protected. That's why we built this. That's why we wake up every morning and keep building it.</p>
+      <p>We believe that the pharmacy of the future is one where healthcare professionals spend more time on what matters — the human side of care — and less time wrestling with spreadsheets, paper forms, and outdated software. AI Web Agent is that future, available today.</p>
+      <p>Whether you're a solo pharmacist running a single store, or a healthcare network managing dozens of locations, our platform scales with you. Our compliance engine automatically adapts to regulations, our AI model learns from your inventory patterns, and our support team is always available when you need a human touch.</p>
+      <p>Join us in building a healthier world — one prescription at a time.</p>
+    </div>
+
+    <div>
+      <div class="astat-card">
+        <div class="astat"><span class="astat-num">500+</span><span class="astat-lbl">Pharmacies Served</span></div>
+        <div class="astat"><span class="astat-num">2M+</span><span class="astat-lbl">Prescriptions Verified</span></div>
+        <div class="astat"><span class="astat-num">99.9%</span><span class="astat-lbl">Uptime SLA</span></div>
+        <div class="astat"><span class="astat-num">24/7</span><span class="astat-lbl">AI Support</span></div>
+      </div>
+
+      <div class="aval-card">
+        <h3>Our Core Values</h3>
+        <ul class="aval-list">
+          <li><span>🛡️</span><div><strong>Safety First</strong><p>Every decision we make is filtered through the lens of patient safety and compliance.</p></div></li>
+          <li><span>🤖</span><div><strong>AI with Empathy</strong><p>Our AI doesn't replace human care — it enhances it by handling the tedious so people can focus on the meaningful.</p></div></li>
+          <li><span>🌐</span><div><strong>Accessibility</strong><p>Designed for every user, regardless of technical ability or disability.</p></div></li>
+          <li><span>🔒</span><div><strong>Data Privacy</strong><p>Patient data is sacred. We maintain the highest standards of encryption and compliance.</p></div></li>
+        </ul>
+      </div>
+
+      <div class="ateam-card">
+        <h3>Our Leadership</h3>
+        <div class="tmember"><div class="tavatar">👨‍⚕️</div><div><strong>Dr. Amir Khan</strong><p>CEO & Co-Founder · Ex-WHO Health Tech Advisor</p></div></div>
+        <div class="tmember"><div class="tavatar">👩‍💻</div><div><strong>Priya Sharma</strong><p>CTO · AI/ML Lead · Former Google Health</p></div></div>
+        <div class="tmember"><div class="tavatar">👨‍💼</div><div><strong>James O'Brien</strong><p>COO · 15yr Healthcare Operations</p></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mission-sec">
+    <h2>Our Mission</h2>
+    <blockquote>"To make intelligent, safe, and accessible pharmacy management available to every healthcare provider on the planet — regardless of size, budget, or technical expertise."</blockquote>
+    <button class="btn-primary" onclick="goTo('dashboard')">Explore the Platform →</button>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="nav-logo" style="color:white"><div class="nav-logo-icon">⚕</div>AI Web Agent</div>
+      <nav class="footer-links">
+        <a onclick="goTo('home')">Home</a><a onclick="goTo('about')">About</a><a onclick="goTo('dashboard')">Dashboard</a><a onclick="goTo('admin')">Admin Panel</a>
+      </nav>
+      <div class="footer-meta"><span class="dot dot-green"></span>All Systems Operational</div>
+    </div>
+  </footer>
+</div>
+
+<!-- ============================================================
+     AI + ADMIN DASHBOARD PAGE
+============================================================ -->
+<div id="page-dashboard" class="page">
+  <div class="dash-layout">
+
+    <!-- LEFT: AI CHAT -->
+    <aside class="ai-panel" aria-label="AI Pharmacy Assistant">
+      <div class="ai-ph">
+        <div class="ai-ph-top">
+          <div>
+            <h2>🤖 AI Pharmacy Assistant</h2>
+            <div class="ai-status-row">
+              <span class="dot dot-green"></span>System: Operational
+              <span class="sep">|</span>
+              <span class="dot dot-green"></span>Compliance: Active
+            </div>
+          </div>
+          <button class="webcall-btn" onclick="startWebCall()" aria-label="Start Web Voice Call" title="Start Voice Call">📞</button>
+        </div>
+      </div>
+
+      <div class="ai-msgs" id="aiMsgs" aria-live="polite"></div>
+
+      <div class="ai-input-area">
+        <div class="rx-banner" id="rxBanner" role="alert">
+          <span class="ri">⚠️</span>
+          <div><strong>Prescription Required</strong><small>This medicine needs a valid prescription to proceed.</small></div>
+          <button class="rx-upload-btn" onclick="openModal('rxModal')">📄 Upload Prescription</button>
+        </div>
+        <div class="ai-input-row">
+          <button class="mic-btn" id="micBtn" onclick="toggleVoice()" aria-label="Start voice input">🎙️</button>
+          <input type="text" class="ai-ti" id="aiInput" placeholder="Speak or type your request..." aria-label="Type your medication request">
+          <button class="ai-send" onclick="sendAiMsg()" aria-label="Send">Send</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- RIGHT: ADMIN DASHBOARD -->
+    <main class="admin-r" aria-label="Admin Dashboard">
+      <div class="dash-header">
+        <div>
+          <h1>Admin Dashboard</h1>
+          <p>Real-time pharmacy intelligence & analytics</p>
+        </div>
+        <div style="display:flex;gap:.875rem;align-items:center">
+          <select class="form-input" id="periodSel" onchange="updatePeriod()" style="width:140px" aria-label="Time period">
+            <option value="today">Today</option>
+            <option value="week" selected>This Week</option>
+            <option value="month">This Month</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- METRICS -->
+      <div class="metrics">
+        <div class="mcard"><div class="micon rev">💰</div><div><div class="mval" id="dMetRev">$48,200</div><div class="mlbl">Total Revenue</div><div class="mch pos">▲ 2% this week</div></div></div>
+        <div class="mcard"><div class="micon ord">📦</div><div><div class="mval" id="dMetOrd">1,023</div><div class="mlbl">Total Orders</div><div class="mch pos">▲ 8% this week</div></div></div>
+        <div class="mcard"><div class="micon al">⚠️</div><div><div class="mval" id="dMetLow">3</div><div class="mlbl">Low Stock Alerts</div><div class="mch neg">▼ Needs attention</div></div></div>
+        <div class="mcard"><div class="micon bl">🛡️</div><div><div class="mval" id="dMetBlk">12</div><div class="mlbl">Prescription Blocks</div><div class="mch neu">Compliance enforced</div></div></div>
+      </div>
+
+      <!-- CHARTS -->
+      <div class="charts-row">
+        <div class="chart-card"><div class="cc-head"><h3>Total Revenue</h3><span class="badge badge-blue">This Week</span></div><div class="chart-h"><canvas id="dRevChart" aria-label="Revenue chart"></canvas></div></div>
+        <div class="chart-card"><div class="cc-head"><h3>Orders By Time</h3><span class="badge badge-green" style="display:flex;align-items:center;gap:4px"><span class="dot dot-green"></span>Live</span></div><div class="chart-h"><canvas id="dOrdChart" aria-label="Orders chart"></canvas></div></div>
+      </div>
+
+      <!-- BOTTOM -->
+      <div class="bot-row">
+        <div class="tcard">
+          <div class="tcard-head"><h3>Recent Orders</h3><a class="feat-link" onclick="goTo('admin')" style="cursor:pointer;font-size:.82rem">View All →</a></div>
+          <div style="overflow-x:auto"><table class="tbl" aria-label="Recent orders"><thead><tr><th>Order ID</th><th>Medicine</th><th>Price</th><th>Status</th><th>Payment</th></tr></thead><tbody id="dOrdersBody"></tbody></table></div>
+        </div>
+        <div class="side-cards">
+          <div class="card" style="padding:1.1rem" aria-label="Top Sellers">
+            <h3 style="font-size:.9rem;margin-bottom:.875rem;color:var(--b1)">🏆 Top Sellers This Week</h3>
+            <div id="dTopSellers"></div>
+          </div>
+          <div class="chart-card" aria-label="Stock Distribution">
+            <div class="cc-head"><h3>Inventory Status</h3><span class="badge badge-blue">Live</span></div>
+            <div style="position:relative;height:180px"><canvas id="dStockChart" aria-label="Stock donut chart"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STOCK TABLE -->
+      <div class="tcard" style="margin-top:.25rem">
+        <div class="tcard-head"><h3>Current Stock Overview</h3><span class="badge badge-blue">Updated now</span></div>
+        <div style="overflow-x:auto"><table class="tbl" aria-label="Stock overview"><thead><tr><th>Medicine</th><th>Stock</th><th>Status</th><th>Category</th><th>Reorder Level</th></tr></thead><tbody id="dStockBody"></tbody></table></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ============================================================
+     ADMIN PANEL PAGE
+============================================================ -->
+<div id="page-admin" class="page">
+  <div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar" aria-label="Admin Navigation">
+      <button class="sb-btn active" onclick="showAdminSec('overview',this)" aria-pressed="true"><span>📊</span>Overview</button>
+      <button class="sb-btn" onclick="showAdminSec('orders',this)" aria-pressed="false"><span>📦</span>Orders</button>
+      <button class="sb-btn" onclick="showAdminSec('customers',this)" aria-pressed="false"><span>👥</span>Customers</button>
+      <button class="sb-btn" onclick="showAdminSec('inventory',this)" aria-pressed="false"><span>💊</span>Inventory</button>
+      <button class="sb-btn" onclick="showAdminSec('analytics',this)" aria-pressed="false"><span>📈</span>Analytics</button>
+      <div class="sb-div"></div>
+      <div class="sb-qs">
+        <div class="sq-title">Quick Stats</div>
+        <div class="sq-item"><span>💰</span><div><strong>$48,200</strong><small>Revenue</small></div></div>
+        <div class="sq-item"><span>📦</span><div><strong>1,023</strong><small>Orders</small></div></div>
+        <div class="sq-item"><span>👥</span><div><strong>342</strong><small>Customers</small></div></div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="admin-main">
+
+      <!-- OVERVIEW -->
+      <section id="asec-overview" class="asec show" aria-labelledby="asec-ov-title">
+        <div class="asec-title-row"><div><h1 id="asec-ov-title">Sales Overview</h1><p class="asec-sub">Let's check your pharmacy today</p></div></div>
+        <div class="ov-metrics">
+          <div class="mcard"><div class="micon rev">💰</div><div><div class="mval">$112,200</div><div class="mlbl">Total Revenue</div><div class="mch pos">▲ 2% last week</div></div></div>
+          <div class="mcard"><div class="micon ord">📊</div><div><div class="mval">$12,500</div><div class="mlbl">Total Profit</div><div class="mch pos">▲ 8% last week</div></div></div>
+          <div class="mcard"><div class="micon al">💸</div><div><div class="mval">$48,200</div><div class="mlbl">Total Cost</div><div class="mch neg">▼ 0.2% last week</div></div></div>
+          <div class="mcard"><div class="micon bl">🛒</div><div><div class="mval">$96.50</div><div class="mlbl">Avg. Order Value</div><div class="mch pos">▲ 5% last week</div></div></div>
+        </div>
+        <div class="ov-charts">
+          <div class="chart-card"><div class="cc-head"><h3>Total Revenue</h3><span class="badge badge-blue">This Month</span></div><div style="height:240px"><canvas id="ovRevChart"></canvas></div></div>
+          <div class="chart-card"><div class="cc-head"><h3>Orders By Time</h3></div><div style="height:240px"><canvas id="ovOrdChart"></canvas></div></div>
+        </div>
+        <div class="ov-bottom">
+          <div class="tcard">
+            <div class="tcard-head"><h3>Recent Orders</h3><button onclick="showAdminSec('orders',document.querySelector('.sb-btn:nth-child(2)'))" class="feat-link" style="background:none;font-size:.82rem;cursor:pointer">View All →</button></div>
+            <div style="overflow-x:auto"><table class="tbl" aria-label="Recent orders"><thead><tr><th>Order ID</th><th>Medicine</th><th>Price</th><th>Status</th><th>Payment</th><th>Action</th></tr></thead><tbody id="ovOrdersBody"></tbody></table></div>
+          </div>
+          <div class="card" style="padding:1.1rem">
+            <h3 style="font-size:.9rem;margin-bottom:.875rem;color:var(--b1)">🏆 Top Products</h3>
+            <div id="ovTopProds"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ORDERS -->
+      <section id="asec-orders" class="asec" aria-labelledby="asec-ord-title">
+        <div class="asec-title-row"><div><h1 id="asec-ord-title">Orders Management</h1><p class="asec-sub">View, manage and add orders</p></div><button class="btn-primary btn-sm" onclick="openModal('addOrderModal')">➕ Add Order</button></div>
+        <div class="filter-row"><input type="search" class="form-input" id="ordSearch" placeholder="Search orders..." style="max-width:280px" oninput="filterOrders()" aria-label="Search orders"><select class="form-input" style="width:140px" onchange="filterOrders()" id="ordStatusFilter" aria-label="Filter by status"><option value="">All Status</option><option>Completed</option><option>In Progress</option><option>Pending</option></select></div>
+        <div class="tbl-wrap"><table class="tbl" aria-label="Orders"><thead><tr><th>Order ID</th><th>Customer</th><th>Medicine</th><th>Price</th><th>Status</th><th>Payment</th><th>Actions</th></tr></thead><tbody id="ordersBody"></tbody></table></div>
+      </section>
+
+      <!-- CUSTOMERS -->
+      <section id="asec-customers" class="asec" aria-labelledby="asec-cust-title">
+        <div class="asec-title-row"><div><h1 id="asec-cust-title">Customer Management</h1><p class="asec-sub">View and manage all customers</p></div><button class="btn-primary btn-sm" onclick="openModal('addCustModal')">➕ Add Customer</button></div>
+        <div class="filter-row"><input type="search" class="form-input" id="custSearch" placeholder="Search customers..." style="max-width:280px" oninput="filterCustomers()" aria-label="Search customers"></div>
+        <div class="tbl-wrap"><table class="tbl" aria-label="Customers"><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Orders</th><th>Status</th><th>Actions</th></tr></thead><tbody id="custBody"></tbody></table></div>
+      </section>
+
+      <!-- INVENTORY -->
+      <section id="asec-inventory" class="asec" aria-labelledby="asec-inv-title">
+        <div class="asec-title-row"><div><h1 id="asec-inv-title">Inventory Management</h1><p class="asec-sub">Track stock levels and manage medicines</p></div><button class="btn-primary btn-sm" onclick="openModal('addMedModal')">➕ Add Medicine</button></div>
+        <div class="inv-alerts" id="invAlerts" aria-live="polite"></div>
+        <div class="tbl-wrap"><table class="tbl" aria-label="Inventory"><thead><tr><th>Medicine</th><th>Category</th><th>Stock</th><th>Status</th><th>Price</th><th>Rx Required</th><th>Actions</th></tr></thead><tbody id="invBody"></tbody></table></div>
+      </section>
+
+      <!-- ANALYTICS -->
+      <section id="asec-analytics" class="asec" aria-labelledby="asec-an-title">
+        <div class="asec-title-row"><h1 id="asec-an-title">Analytics & Reports</h1></div>
+        <div class="an-grid">
+          <div class="chart-card"><div class="cc-head"><h3>Weekly Revenue Trend</h3></div><div style="height:240px"><canvas id="anRevChart"></canvas></div></div>
+          <div class="chart-card"><div class="cc-head"><h3>Medicine Categories</h3></div><div style="height:240px"><canvas id="anCatChart"></canvas></div></div>
+          <div class="chart-card"><div class="cc-head"><h3>Top 5 by Volume</h3></div><div style="height:240px"><canvas id="anTopChart"></canvas></div></div>
+          <div class="chart-card"><div class="cc-head"><h3>Monthly Orders</h3></div><div style="height:240px"><canvas id="anMonChart"></canvas></div></div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     API ENDPOINTS PAGE
+============================================================ -->
+<div id="page-endpoints" class="page" style="background:var(--g6)">
+  <div class="ep-wrap">
+    <h1>📡 Backend API Endpoints</h1>
+    <p>Complete reference for all AI Web Agent backend endpoints. The backend handles all business logic — frontend only sends/receives JSON. All endpoints require Bearer token auth unless marked Public.</p>
+    <div class="base-url-box">Base URL: https://api.aiwebagent.com/v1</div>
+
+    <div class="ep-sec"><div class="ep-sec-h">🤖 AI & Chat</div>
+      <div class="ep-item"><div class="ep-mrow"><span class="ep-m POST">POST</span><code class="ep-path">/chat-agent</code></div><p class="ep-desc">Send a message to the AI Pharmacy Assistant. Backend handles NLU, medication lookup, prescription checking.</p><div class="ep-code">Request: { <span class="k">"message"</span>: <span class="v">"I need paracetamol 10 tablets"</span> }<br>Response OK: { <span class="k">"reply"</span>: <span class="v">"Got it! Processing..."</span>, <span class="k">"status"</span>: <span class="v">"approved"</span> }<br>Response Rx: { <span class="k">"status"</span>: <span class="v">"rejected"</span>, <span class="k">"reason"</span>: <span class="v">"prescription_required"</span> }</div></div>
+      <div class="ep-item"><div class="ep-mrow"><span class="ep-m POST">POST</span><code class="ep-path">/voice-agent</code></div><p class="ep-desc">Voice-to-AI endpoint via Vapi SDK. Processes voice input and returns AI response.</p><div class="ep-code">Vapi SDK: <span class="k">const</span> vapi = <span class="v">new Vapi("PUBLIC_API_KEY")</span><br>Button: vapi.start(<span class="v">"ASSISTANT_ID"</span>)</div></div>
+    </div>
+
+    <div class="ep-sec"><div class="ep-sec-h">📄 Prescription Verification</div>
+      <div class="ep-item"><div class="ep-mrow"><span class="ep-m POST">POST</span><code class="ep-path">/upload-prescription</code></div><p class="ep-desc">Upload and verify a patient prescription. Backend validates against the requested medicine.</p><div class="ep-code">Request: { <span class="k">"customer_id"</span>: <span class="v">"USR001"</span>, <span class="k">"medicine"</span>: <span class="v">"Amoxicillin 500mg"</span> }<br>Response OK: { <span class="k">"status"</span>: <span class="v">"verified"</span>, <span class="k">"verification_id"</span>: <span class="v">"RX-4821"</span> }</div></div>
+    </div>
+
+    <div class="ep-sec"><div class="ep-sec-h">📦 Orders</div>
+      <div class="ep-item"><div class="ep-mrow"><span class="ep-m GET">GET</span><code class="ep-path">/orders</code></div><p class="ep-desc">Get all orders. Params: ?status=completed&limit=50&page=1</p></div>
+      <div class="ep-item"><div class="ep-mrow"><span class="ep-m POST">POST</span><code class="ep-path">/orders</code></div><p class="ep-desc">Create a new order. Prescription check enforced server-side.</p><div class="ep-code">{ <span class="k">"customer_id"</span>: <span class="v">"USR001"</span>, <span class="k">"medicine"</span>: <span class="v">"Paracetamol 650"</span>, <span class="k">"quantity"</span>: <span class="v">10</span> }</div></div>
+      <div class="ep-item"><div class="ep-mrow"><span class="ep-m PUT">PUT</span><code class="ep-path">/orders/:id</code></div><p class="ep-desc">Update an order status or details.</p></div>
+      <div class="ep-item"><div class="ep-mrow"><span class="ep-m DELETE">DELETE</span><code class="ep-path">/orders/:id</code></div><p class="ep-desc">Cancel and delete an order (admin only).</p></div>
+    </div>
+
+    <div class="ep-sec"><div class="ep-sec-h">💊 Inventory / Medicines</div>
+      <div class="ep-item"><div class="ep-mrow"><span class="ep-m GET">GET</span><code class="ep-path">/inventory</code></div><p class="ep-desc">Get all medicines with stock. Params: ?category=antibiotic&low_stock=true</p></div>
+      <div class="ep-item"><div class="ep-mrow"><span class="ep-m POST">POST</span><code class="ep-path">/inventory</code></div><p class="ep-desc">Add a new medicine.</p><div class="ep-code">{ <span class="k">"name"</span>: <span class="v">"Amoxicillin 500mg"</span>, <span class="k">"stock"</span>: <span class="v">50</span>, <span class="k">"restricted"</span>: <span class="v">true</span> }</div></div>
+      <div class="ep-item"><div class="ep-mrow"><span class="ep-m GET">GET</span><code class="ep-path">/inventory/alerts</code></div><p class="ep-desc">Get low-stock and critical-stock alerts for notification bell.</p></div>
+    </div>
+
+    <div class="ep-sec"><div class="ep-sec-h">👥 Customers</div>
+      <div class="ep-item"><div class="ep-mrow"><span class="ep-m GET">GET</span><code class="ep-path">/customers</code></div><p class="ep-desc">Get all registered customers.</p></div>
+      <div class="ep-item"><div class="ep-mrow"><span class="ep-m POST">POST</span><code class="ep-path">/customers</code></div><p class="ep-desc">Register a new customer.</p><div class="ep-code">{ <span class="k">"name"</span>: <span class="v">"John Doe"</span>, <span class="k">"email"</span>: <span class="v">"john@email.com"</span>, <span class="k">"phone"</span>: <span class="v">"+1-555-0100"</span> }</div></div>
+    </div>
+
+    <div class="ep-sec"><div class="ep-sec-h">📊 Analytics & Dashboard</div>
+      <div class="ep-item"><div class="ep-mrow"><span class="ep-m GET">GET</span><code class="ep-path">/analytics/revenue</code></div><p class="ep-desc">Revenue data. Params: ?period=week|month|today</p></div>
+      <div class="ep-item"><div class="ep-mrow"><span class="ep-m GET">GET</span><code class="ep-path">/analytics/top-sellers</code></div><p class="ep-desc">Top selling medicines for given period.</p></div>
+      <div class="ep-item"><div class="ep-mrow"><span class="ep-m GET">GET</span><code class="ep-path">/analytics/dashboard-summary</code></div><p class="ep-desc">All dashboard metrics: revenue, orders, low-stock count, prescription blocks.</p></div>
+    </div>
+
+    <div class="ep-sec"><div class="ep-sec-h">🔐 Authentication</div>
+      <div class="ep-item"><div class="ep-mrow"><span class="ep-m POST">POST</span><code class="ep-path">/auth/login</code><span class="badge badge-green" style="font-size:.65rem">Public</span></div><p class="ep-desc">Login with email/password. Returns JWT token.</p><div class="ep-code">Request: { <span class="k">"email"</span>: <span class="v">"user@pharmacy.com"</span>, <span class="k">"password"</span>: <span class="v">"..."</span> }<br>Response: { <span class="k">"token"</span>: <span class="v">"eyJhbGc..."</span> }</div></div>
+      <div class="ep-item"><div class="ep-mrow"><span class="ep-m POST">POST</span><code class="ep-path">/auth/logout</code></div><p class="ep-desc">Invalidate the current session token.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SUPPORT CHATBOT (global)
+============================================================ -->
+<div class="support-wrap" aria-label="Support Chat">
+  <button class="chat-toggle-btn" onclick="toggleChat()" aria-label="Toggle Support Chat" aria-expanded="false" id="chatToggleBtn">💬</button>
+  <div class="chat-panel" id="chatPanel" role="dialog" aria-label="AI Support Assistant">
+    <div class="chat-ph">
+      <div><strong>🤝 Support Assistant</strong><p>AI-Powered · Available 24/7</p></div>
+      <button class="chat-ph-close" onclick="toggleChat()" aria-label="Close">✕</button>
+    </div>
+    <div class="chat-msgs" id="chatMsgs" aria-live="polite"></div>
+    <div class="chat-input-row">
+      <input type="text" class="chat-ti" id="chatTi" placeholder="Describe your issue..." aria-label="Type your message">
+      <button class="chat-send" onclick="sendChatMsg()" aria-label="Send">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     TOAST CONTAINER
+============================================================ -->
+<div class="toast-wrap" id="toastWrap" aria-live="polite" aria-atomic="true"></div>
+
+<!-- ============================================================
+     MODALS
+============================================================ -->
+<!-- LOGIN -->
+<div class="overlay" id="loginModal" role="dialog" aria-modal="true" aria-labelledby="loginTitle" onclick="overlayClose(event,'loginModal')">
+  <div class="modal-box">
+    <h2 class="modal-title" id="loginTitle">Welcome Back</h2>
+    <p class="modal-sub">Login to your AI Web Agent account</p>
+    <div style="display:flex;flex-direction:column;gap:.875rem">
+      <div class="form-group"><label class="form-label" for="liEmail">Email Address</label><input class="form-input" type="email" id="liEmail" placeholder="you@pharmacy.com"></div>
+      <div class="form-group"><label class="form-label" for="liPass">Password</label><input class="form-input" type="password" id="liPass" placeholder="••••••••"></div>
+      <button class="btn-primary" onclick="handleLogin()" style="justify-content:center;margin-top:.25rem">Login</button>
+      <button onclick="closeModal('loginModal')" style="background:none;color:var(--g3);font-size:.875rem;padding:8px">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- WEB CALL -->
+<div class="overlay" id="callModal" role="dialog" aria-modal="true" onclick="overlayClose(event,'callModal')">
+  <div class="modal-box" style="text-align:center">
+    <div style="font-size:3rem;margin-bottom:.875rem;animation:orbFloat 2s ease-in-out infinite">📞</div>
+    <h2 class="modal-title">Web Voice Call</h2>
+    <p class="modal-sub">AI Voice Agent is active. Speak your request clearly.</p>
+    <div style="display:flex;align-items:center;justify-content:center;gap:7px;font-size:.82rem;font-weight:600;color:var(--g3);margin-bottom:1.5rem"><span class="dot dot-green"></span>Listening...</div>
+    <button class="btn-primary" onclick="closeModal('callModal')" style="background:linear-gradient(135deg,#ef4444,#dc2626);justify-content:center">📵 End Call</button>
+  </div>
+</div>
+
+<!-- RX UPLOAD -->
+<div class="overlay" id="rxModal" role="dialog" aria-modal="true" aria-labelledby="rxTitle" onclick="overlayClose(event,'rxModal')">
+  <div class="modal-box">
+    <h2 class="modal-title" id="rxTitle">📄 Upload Prescription</h2>
+    <p class="modal-sub">Upload a valid prescription to proceed with restricted medication order.</p>
+    <div class="rx-zone" onclick="simulateRxUpload()" role="button" tabindex="0" aria-label="Click to upload prescription">
+      <div class="rx-zone-icon">📋</div>
+      <p><strong>Click to upload prescription</strong></p>
+      <p style="font-size:.75rem;color:var(--g4);margin-top:5px">JPG, PNG or PDF · Max 10MB</p>
+    </div>
+    <div style="display:flex;gap:.875rem;margin-top:1.4rem">
+      <button class="btn-primary" onclick="simulateRxUpload()" style="flex:1;justify-content:center">📄 Upload & Verify</button>
+      <button onclick="closeModal('rxModal')" style="flex:1;padding:13px;border:2px solid var(--g5);border-radius:var(--r2);font-weight:600;color:var(--g3)">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD ORDER -->
+<div class="overlay" id="addOrderModal" role="dialog" aria-modal="true" onclick="overlayClose(event,'addOrderModal')">
+  <div class="modal-box" style="max-width:520px">
+    <h2 class="modal-title">➕ Add New Order</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.875rem">
+      <div class="form-group"><label class="form-label" for="aoId">Order ID</label><input class="form-input" id="aoId" placeholder="#ORD600"></div>
+      <div class="form-group"><label class="form-label" for="aoCust">Customer</label><input class="form-input" id="aoCust" placeholder="John Doe"></div>
+      <div class="form-group" style="grid-column:span 2"><label class="form-label" for="aoMed">Medicine(s)</label><input class="form-input" id="aoMed" placeholder="Paracetamol (2), Ibuprofen (1)"></div>
+      <div class="form-group"><label class="form-label" for="aoPrice">Price ($)</label><input class="form-input" type="number" id="aoPrice" placeholder="25.50" step="0.01"></div>
+      <div class="form-group"><label class="form-label" for="aoStatus">Status</label><select class="form-input" id="aoStatus"><option>Pending</option><option>In Progress</option><option>Completed</option></select></div>
+    </div>
+    <div style="display:flex;gap:.875rem;margin-top:1.4rem">
+      <button class="btn-primary" onclick="addOrder()" style="flex:1;justify-content:center">✅ Add Order</button>
+      <button onclick="closeModal('addOrderModal')" style="flex:1;padding:13px;border:2px solid var(--g5);border-radius:var(--r2);font-weight:600;color:var(--g3)">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD CUSTOMER -->
+<div class="overlay" id="addCustModal" role="dialog" aria-modal="true" onclick="overlayClose(event,'addCustModal')">
+  <div class="modal-box" style="max-width:520px">
+    <h2 class="modal-title">➕ Add New Customer</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.875rem">
+      <div class="form-group"><label class="form-label" for="acName">Full Name</label><input class="form-input" id="acName" placeholder="John Doe"></div>
+      <div class="form-group"><label class="form-label" for="acEmail">Email</label><input class="form-input" type="email" id="acEmail" placeholder="john@email.com"></div>
+      <div class="form-group"><label class="form-label" for="acPhone">Phone</label><input class="form-input" id="acPhone" placeholder="+1-555-0100"></div>
+      <div class="form-group"><label class="form-label" for="acCity">City</label><input class="form-input" id="acCity" placeholder="New York"></div>
+    </div>
+    <div style="display:flex;gap:.875rem;margin-top:1.4rem">
+      <button class="btn-primary" onclick="addCustomer()" style="flex:1;justify-content:center">✅ Add Customer</button>
+      <button onclick="closeModal('addCustModal')" style="flex:1;padding:13px;border:2px solid var(--g5);border-radius:var(--r2);font-weight:600;color:var(--g3)">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD MEDICINE -->
+<div class="overlay" id="addMedModal" role="dialog" aria-modal="true" onclick="overlayClose(event,'addMedModal')">
+  <div class="modal-box" style="max-width:520px">
+    <h2 class="modal-title">➕ Add Medicine</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.875rem">
+      <div class="form-group" style="grid-column:span 2"><label class="form-label" for="amName">Medicine Name</label><input class="form-input" id="amName" placeholder="Paracetamol 650mg"></div>
+      <div class="form-group"><label class="form-label" for="amCat">Category</label><select class="form-input" id="amCat"><option>Pain Relief</option><option>Antibiotic</option><option>Antihistamine</option><option>Diabetes</option><option>Blood Pressure</option><option>Gastric</option><option>Other</option></select></div>
+      <div class="form-group"><label class="form-label" for="amStock">Initial Stock</label><input class="form-input" type="number" id="amStock" placeholder="50"></div>
+      <div class="form-group"><label class="form-label" for="amPrice">Price ($)</label><input class="form-input" type="number" id="amPrice" placeholder="2.50" step="0.01"></div>
+      <div class="form-group"><label class="form-label" for="amReorder">Reorder Level</label><input class="form-input" type="number" id="amReorder" placeholder="10"></div>
+      <div class="form-group" style="grid-column:span 2;flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="amRx" style="width:15px;height:15px;accent-color:var(--b2)"><label class="form-label" for="amRx" style="margin:0;cursor:pointer">Requires Prescription (Rx)</label></div>
+    </div>
+    <div style="display:flex;gap:.875rem;margin-top:1.4rem">
+      <button class="btn-primary" onclick="addMedicine()" style="flex:1;justify-content:center">✅ Add Medicine</button>
+      <button onclick="closeModal('addMedModal')" style="flex:1;padding:13px;border:2px solid var(--g5);border-radius:var(--r2);font-weight:600;color:var(--g3)">Cancel</button>
+    </div>
+  </div>
+</div>
+<script type="module" src="./js/main.js"></script>
+</body>
