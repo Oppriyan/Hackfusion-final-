@@ -31,7 +31,7 @@ def handle_intent(request):
         return check_inventory(medicine)
 
     # ==================================================
-    # ORDER FLOW
+    # ORDER FLOW (FIXED WITH CANONICAL NAME)
     # ==================================================
     if intent == "order":
 
@@ -40,6 +40,7 @@ def handle_intent(request):
 
         quantity = quantity if quantity and quantity > 0 else 1
 
+        # Step 1 — Check Inventory
         inventory = check_inventory(medicine)
 
         if inventory.get("status") != "success":
@@ -55,8 +56,11 @@ def handle_intent(request):
         medicine_id = medicine_data.get("medicine_id")
         prescription_required = medicine_data.get("prescription_required") == "Yes"
 
-        if prescription_required:
+        # 🔥 Use canonical backend medicine name
+        canonical_name = medicine_data.get("name")
 
+        # Step 2 — Verify Prescription if Required
+        if prescription_required:
             verify = verify_prescription(customer_id, medicine_id)
 
             if verify.get("status") != "success":
@@ -66,7 +70,8 @@ def handle_intent(request):
                     "message": "Valid prescription required"
                 }
 
-        return create_order(customer_id, medicine, quantity)
+        # Step 3 — Create Order using canonical name
+        return create_order(customer_id, canonical_name, quantity)
 
     # ==================================================
     # HISTORY
