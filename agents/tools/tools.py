@@ -21,13 +21,13 @@ def health_check():
 def check_inventory(medicine_name):
     return safe_request("GET", f"/inventory/{medicine_name}")
 
-def create_order(customer_id, medicine_name, quantity):
+def create_order(customer_id, medicine_id, quantity):
     return safe_request(
-        "POST", 
-        "/create-order", 
+        "POST",
+        "/create-order",
         json={
             "customer_id": customer_id,
-            "medicine": medicine_name,
+            "medicine_id": medicine_id,
             "quantity": quantity
         }
     )

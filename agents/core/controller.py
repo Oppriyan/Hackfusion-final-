@@ -71,7 +71,7 @@ def handle_intent(request):
                 }
 
         # Step 3 — Create Order using canonical name
-        return create_order(customer_id, canonical_name, quantity)
+        return create_order(customer_id, medicine_id, quantity)
 
     # ==================================================
     # HISTORY
