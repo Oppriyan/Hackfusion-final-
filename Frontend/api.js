@@ -1,13 +1,8 @@
 // ============================================================
-// API LAYER
-// All backend communication happens here
+// API LAYER (PHARMLY - UNIFIED REAL ENDPOINTS ONLY)
 // ============================================================
 
 import { API_BASE } from "./config.js";
-
-// --------------------------------------
-// Safe Request Wrapper
-// --------------------------------------
 
 async function request(endpoint, options = {}) {
   try {
@@ -19,13 +14,13 @@ async function request(endpoint, options = {}) {
       ...options
     });
 
-    const data = await response.json().catch(() => null);
+    const data = await response.json();
 
     if (!response.ok) {
       throw new Error(data?.message || "Server error");
     }
 
-    return data;
+    return { status: "success", data };
   } catch (error) {
     console.error("API ERROR:", error.message);
     return {
@@ -35,68 +30,72 @@ async function request(endpoint, options = {}) {
   }
 }
 
-
 // ============================================================
 // INVENTORY
 // ============================================================
 
-export async function getInventory() {
-  return await request("/inventory");
-}
+export const getInventory = () => request("/inventory");
 
-
-// ============================================================
-// CREATE ORDER
-// ============================================================
-
-export async function createOrder(customer_id, medicine_id, quantity) {
-  return await request("/create-order", {
+export const updateStock = (medicine_id, delta) =>
+  request("/update-stock", {
     method: "POST",
-    body: JSON.stringify({
-      customer_id,
-      medicine_id,
-      quantity
-    })
+    body: JSON.stringify({ medicine_id, delta })
   });
-}
-
 
 // ============================================================
-// ORDER HISTORY
+// ORDERS
 // ============================================================
 
-export async function getOrderHistory(customer_id) {
-  return await request(`/history/${customer_id}`);
-}
-
-
-// ============================================================
-// UPDATE STOCK (ADMIN)
-// ============================================================
-
-export async function updateStock(medicine_id, delta) {
-  return await request("/update-stock", {
+export const createOrder = (customer_id, medicine_id, quantity) =>
+  request("/create-order", {
     method: "POST",
-    body: JSON.stringify({
-      medicine_id,
-      delta
-    })
+    body: JSON.stringify({ customer_id, medicine_id, quantity })
   });
-}
 
+export const getOrderHistory = (customer_id) =>
+  request(`/history/${customer_id}`);
+
+export const getUserMetrics = (customer_id) =>
+  request(`/user-metrics/${customer_id}`);
+
+export const getRefills = (customer_id) =>
+  request(`/refills/${customer_id}`);
 
 // ============================================================
-// ANALYTICS (Optional — only if backend supports)
+// PRESCRIPTIONS
 // ============================================================
 
-export async function getAnalyticsOverview() {
-  return await request("/admin/analytics-overview");
-}
+export const verifyPrescription = (customer_id, medicine_id, fileUrl) =>
+  request("/verify-prescription", {
+    method: "POST",
+    body: JSON.stringify({ customer_id, medicine_id, fileUrl })
+  });
 
-export async function getTopProducts() {
-  return await request("/admin/top-products");
-}
+export const getPrescriptionStatus = (customer_id) =>
+  request(`/prescription-status/${customer_id}`);
 
-export async function getRevenueChart() {
-  return await request("/admin/revenue-chart");
-}
+// ============================================================
+// SUPPORT CHAT
+// ============================================================
+
+export const sendSupportMessage = (message, customer_id) =>
+  request("/support-chat", {
+    method: "POST",
+    body: JSON.stringify({ message, customer_id })
+  });
+
+// ============================================================
+// ANALYTICS (ADMIN)
+// ============================================================
+
+export const getAnalyticsOverview = () =>
+  request("/admin/analytics-overview");
+
+export const getRevenueChart = () =>
+  request("/admin/revenue-chart");
+
+export const getTopProducts = () =>
+  request("/admin/top-products");
+
+export const getAdminMetrics = () =>
+  request("/admin/metrics");
