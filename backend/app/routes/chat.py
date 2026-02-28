@@ -3,9 +3,8 @@ from app.services.agent_service import process_chat_message
 
 chat_bp = Blueprint("chat", __name__)
 
-
-@chat_bp.route("/chat-agent", methods=["POST"])
-def chat_agent():
+@chat_bp.route("/chat", methods=["POST"])
+def chat():
 
     try:
         data = request.get_json()
