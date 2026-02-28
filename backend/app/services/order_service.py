@@ -2,17 +2,20 @@ from app.models.database import get_db
 from app.services.prescription_service import is_verified
 
 
-def create_order(customer_id: str = None, medicine: str = None, quantity: int = None):
+# -------------------------------------------------
+# CREATE ORDER (ID-BASED ENTERPRISE VERSION)
+# -------------------------------------------------
+def create_order(customer_id: str = None, medicine_id: str = None, quantity: int = None):
 
     # -------------------------------------------------
-    # SAFE DEFAULTS (TOLERANT BACKEND)
+    # SAFE DEFAULTS
     # -------------------------------------------------
 
     if not customer_id:
         customer_id = "PAT999"  # Demo fallback user
 
     if quantity is None:
-        quantity = 1  # Default quantity
+        quantity = 1
 
     try:
         quantity = int(quantity)
@@ -30,28 +33,26 @@ def create_order(customer_id: str = None, medicine: str = None, quantity: int = 
             "message": "Quantity must be positive"
         }, 400
 
-    if not medicine:
+    if not medicine_id:
         return {
             "status": "error",
             "code": "validation_error",
-            "message": "Medicine name is required"
+            "message": "Medicine ID is required"
         }, 400
-
-    medicine = medicine.strip()
 
     conn = get_db()
     cursor = conn.cursor()
 
     try:
         # -------------------------------------------------
-        # Fetch medicine
+        # Fetch medicine BY ID
         # -------------------------------------------------
         cursor.execute("""
             SELECT id, name, price, stock, prescription_required
             FROM medicines
-            WHERE name LIKE ?
+            WHERE id = ?
             LIMIT 1
-        """, (f"%{medicine}%",))
+        """, (medicine_id,))
 
         medicine_row = cursor.fetchone()
 
@@ -62,8 +63,6 @@ def create_order(customer_id: str = None, medicine: str = None, quantity: int = 
                 "code": "not_found",
                 "message": "Medicine not found"
             }, 404
-
-        medicine_id = medicine_row["id"]
 
         # -------------------------------------------------
         # Prescription Enforcement
@@ -134,18 +133,20 @@ def create_order(customer_id: str = None, medicine: str = None, quantity: int = 
             }
         }, 201
 
-    except Exception:
+    except Exception as e:
         conn.rollback()
         conn.close()
+        print("CREATE ORDER SERVICE ERROR:", str(e))
         return {
             "status": "error",
             "code": "internal_error",
             "message": "Transaction failed"
         }, 500
-    # -------------------------------------------------
+
+
+# -------------------------------------------------
 # CUSTOMER ORDER HISTORY
 # -------------------------------------------------
-
 def get_customer_history(customer_id: str):
 
     if not customer_id:
