@@ -1,5 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app.services.order_service import create_order, get_customer_history
+from app.services.order_service import cancel_order
+from app.services.order_service import get_order_status
 
 order_bp = Blueprint("order", __name__)
 
@@ -97,4 +99,45 @@ def customer_history_route(customer_id):
             "status": "error",
             "code": "internal_error",
             "message": "Customer history endpoint failed"
+        }), 500
+        # -------------------------------------------------
+# CANCEL ORDER
+# -------------------------------------------------
+@order_bp.route("/cancel-order", methods=["POST"])
+def cancel_order_route():
+    try:
+        data = request.get_json()
+
+        if not data:
+            return jsonify({
+                "status": "error",
+                "code": "validation_error",
+                "message": "Request body required"
+            }), 400
+
+        order_id = data.get("order_id")
+
+        response, status = cancel_order(order_id)
+        return jsonify(response), status
+
+    except Exception:
+        return jsonify({
+            "status": "error",
+            "code": "internal_error",
+            "message": "Cancel order endpoint failed"
+        }), 500
+    
+    # -------------------------------------------------
+# GET ORDER STATUS
+# -------------------------------------------------
+@order_bp.route("/order-status/<int:order_id>", methods=["GET"])
+def order_status_route(order_id):
+    try:
+        response, status = get_order_status(order_id)
+        return jsonify(response), status
+    except Exception:
+        return jsonify({
+            "status": "error",
+            "code": "internal_error",
+            "message": "Order status endpoint failed"
         }), 500

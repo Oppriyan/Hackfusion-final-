@@ -1,47 +1,46 @@
+# app/routes/webhook.py
+
 from flask import Blueprint, request, jsonify
 from app.services.agent_service import process_chat_message
 
 webhook_bp = Blueprint("webhook", __name__)
 
 
+# -------------------------------------------
+# VAPI VOICE WEBHOOK
+# -------------------------------------------
+
 @webhook_bp.route("/vapi-webhook", methods=["POST"])
 def vapi_webhook():
-
     try:
         data = request.get_json()
 
         if not data:
             return jsonify({
-                "response": "Invalid request body."
+                "response": "No data received."
             }), 400
 
-        message_content = None
+        # VAPI usually sends transcript field
+        transcript = data.get("transcript") or data.get("message")
 
-        # Case 1: Nested VAPI structure
-        if isinstance(data.get("message"), dict):
-            message_content = data["message"].get("content")
-
-        # Case 2: Simple JSON format
-        elif isinstance(data.get("message"), str):
-            message_content = data.get("message")
-
-        if not message_content:
+        if not transcript:
             return jsonify({
-                "response": "No speech detected."
-            }), 200
+                "response": "No transcript found."
+            }), 400
 
-        response, status = process_chat_message(message_content)
+        # Call your existing agent orchestrator
+        agent_response, status_code = process_chat_message(transcript)
 
-        if status == 200:
-            return jsonify({
-                "response": response["data"]["reply"]
-            }), 200
-        else:
-            return jsonify({
-                "response": response.get("message", "Something went wrong.")
-            }), 200
+        # Extract reply safely
+        reply_text = agent_response.get("data", {}).get("reply") \
+            if agent_response.get("status") == "success" \
+            else agent_response.get("message")
+
+        return jsonify({
+            "response": reply_text
+        }), status_code
 
     except Exception:
         return jsonify({
-            "response": "Server error occurred."
-        }), 200
+            "response": "Something went wrong processing your request."
+        }), 500

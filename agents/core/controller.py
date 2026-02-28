@@ -4,10 +4,9 @@ from agents.tools.tools import (
     check_inventory,
     create_order,
     verify_prescription,
-    get_customer_history,
-    update_stock
+    check_prescription_status,
+    get_customer_history
 )
-
 
 def handle_intent(request):
 
@@ -17,8 +16,7 @@ def handle_intent(request):
     intent = request.intent
     customer_id = request.customer_id or "PAT001"
     medicine = request.medicine_name
-    quantity = request.quantity or 1
-    delta = request.delta
+    quantity = request.quantity
 
     # ==================================================
     # INVENTORY
@@ -26,21 +24,31 @@ def handle_intent(request):
     if intent == "inventory":
 
         if not medicine:
-            return {"status": "error", "message": "Medicine name required"}
+            return {"status": "error", "code": "missing_medicine"}
 
         return check_inventory(medicine)
 
     # ==================================================
-    # ORDER FLOW (FIXED WITH CANONICAL NAME)
+    # ORDER
     # ==================================================
     if intent == "order":
 
         if not medicine:
-            return {"status": "error", "message": "Medicine name required"}
+            return {"status": "error", "code": "missing_medicine"}
 
-        quantity = quantity if quantity and quantity > 0 else 1
+        # 🔥 DEBUG structured quantity
+        print("DEBUG ORDER QUANTITY:", quantity)
 
-        # Step 1 — Check Inventory
+        if quantity is None:
+            quantity = 1
+
+        if quantity <= 0:
+            return {
+                "status": "error",
+                "code": "invalid_quantity",
+                "message": "Quantity must be greater than 0"
+            }
+
         inventory = check_inventory(medicine)
 
         if inventory.get("status") != "success":
@@ -49,29 +57,51 @@ def handle_intent(request):
         data_list = inventory.get("data", [])
 
         if not data_list:
-            return {"status": "error", "code": "not_found", "message": "Medicine not found"}
+            return {"status": "error", "code": "not_found"}
 
-        medicine_data = data_list[0]
+        item = data_list[0]
+        medicine_id = item.get("medicine_id")
+        medicine_name = item.get("name")
+        prescription_required = item.get("prescription_required") == "Yes"
 
-        medicine_id = medicine_data.get("medicine_id")
-        prescription_required = medicine_data.get("prescription_required") == "Yes"
-
-        # 🔥 Use canonical backend medicine name
-        canonical_name = medicine_data.get("name")
-
-        # Step 2 — Verify Prescription if Required
+        # 🔥 FIXED: Use medicine NAME for prescription check
         if prescription_required:
-            verify = verify_prescription(customer_id, medicine_id)
+            status_check = check_prescription_status(customer_id, medicine_name)
 
-            if verify.get("status") != "success":
+            print("DEBUG PRESCRIPTION STATUS:", status_check)
+
+            if not status_check.get("data", {}).get("verified"):
                 return {
                     "status": "error",
-                    "code": "prescription_required",
-                    "message": "Valid prescription required"
+                    "code": "prescription_required"
                 }
 
-        # Step 3 — Create Order using canonical name
         return create_order(customer_id, medicine_id, quantity)
+
+    # ==================================================
+    # UPLOAD PRESCRIPTION
+    # ==================================================
+    if intent == "upload_prescription":
+
+        if not medicine:
+            return {"status": "error", "code": "missing_medicine"}
+
+        inventory = check_inventory(medicine)
+
+        if inventory.get("status") != "success":
+            return inventory
+
+        data_list = inventory.get("data", [])
+
+        if not data_list:
+            return {"status": "error", "code": "not_found"}
+
+        item = data_list[0]
+        medicine_name = item.get("name")
+
+        print("DEBUG UPLOAD MEDICINE NAME:", medicine_name)
+
+        return verify_prescription(customer_id, medicine_name)
 
     # ==================================================
     # HISTORY
@@ -80,19 +110,6 @@ def handle_intent(request):
         return get_customer_history(customer_id)
 
     # ==================================================
-    # UPDATE STOCK
-    # ==================================================
-    if intent == "update_stock":
-
-        if not medicine or delta is None:
-            return {"status": "error", "message": "Medicine and stock delta required"}
-
-        return update_stock(medicine, delta)
-
-    # ==================================================
     # SMALLTALK
     # ==================================================
-    if intent == "smalltalk":
-        return {"status": "smalltalk"}
-
-    return {"status": "error", "message": "Unknown intent"}
+    return {"status": "smalltalk"}
