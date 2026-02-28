@@ -71,24 +71,31 @@ function renderInventoryTable() {
 
 
 // ============================================================
-// METRICS
+// USER DASHBOARD METRICS
 // ============================================================
 
 function renderMetrics() {
 
   const inventory = getInventory();
 
-  const totalStock = inventory.reduce((sum, m) => sum + m.stock, 0);
-  const totalMedicines = inventory.length;
-  const lowStock = inventory.filter(m => m.stock <= 3).length;
+  // User-facing metrics (mock data for demo)
+  const uOrders = document.getElementById("uMetOrders");
+  const uRx = document.getElementById("uMetRx");
+  const uRefills = document.getElementById("uMetRefills");
+  const uAlerts = document.getElementById("uMetAlerts");
 
-  const stockEl = document.getElementById("dMetStock");
-  const medEl = document.getElementById("dMetMed");
+  if (uOrders) uOrders.textContent = "7";
+  if (uRx) uRx.textContent = "2";
+  if (uRefills) uRefills.textContent = "2";
+  if (uAlerts) uAlerts.textContent = "1";
+
+  // Order count badge
+  const badge = document.getElementById("uOrderCount");
+  if (badge) badge.textContent = "7 total";
+
+  // Keep legacy stock for the medicines table
   const lowEl = document.getElementById("dMetLow");
-
-  if (stockEl) stockEl.textContent = totalStock.toLocaleString();
-  if (medEl) medEl.textContent = totalMedicines;
-  if (lowEl) lowEl.textContent = lowStock;
+  if (lowEl) lowEl.textContent = inventory.filter(m => m.stock <= 3).length;
 }
 
 

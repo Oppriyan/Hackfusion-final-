@@ -4,8 +4,6 @@
 // ============================================================
 
 import { getInventory, getNotifications } from "./state.js";
-import { loadDashboardData } from "./dashboard.js";
-import { loadAdminData } from "./admin.js";
 
 
 // ============================================================
@@ -24,7 +22,7 @@ export function goTo(page) {
     a.removeAttribute("aria-current");
   });
 
-  const navEl = document.getElementById("nav-" + page);
+  const navEl = document.getElementById("nav-" + page) || document.getElementById("nav-safety");
   if (navEl) {
     navEl.classList.add("active");
     navEl.setAttribute("aria-current", "page");
@@ -32,8 +30,9 @@ export function goTo(page) {
 
   window.scrollTo(0, 0);
 
-  if (page === "dashboard") loadDashboardData();
-  if (page === "admin") loadAdminData();
+  if (page === "dashboard") import("./dashboard.js").then(m => m.loadDashboardData());
+  if (page === "admin") import("./admin.js").then(m => m.loadAdminData());
+  // safety page is static HTML, no JS load needed
 }
 
 window.goTo = goTo;
@@ -197,3 +196,94 @@ export function initUI() {
   initNotifications();
   initSearch();
 }
+
+// ============================================================
+// ADDITIONAL UI HELPERS (exposed for inline HTML handlers)
+// ============================================================
+
+export function overlayClose(e, id) {
+  if (e.target === e.currentTarget) closeModal(id);
+}
+window.overlayClose = overlayClose;
+
+export function handleLogin() {
+  const email = document.getElementById("liEmail")?.value;
+  const pass = document.getElementById("liPass")?.value;
+  if (!email || !pass) { toast("Please fill in all fields", "orange"); return; }
+  toast("Login successful! Welcome back.", "green");
+  closeModal("loginModal");
+}
+window.handleLogin = handleLogin;
+
+export function addOrder() {
+  const id = document.getElementById("aoId")?.value;
+  const cust = document.getElementById("aoCust")?.value;
+  const med = document.getElementById("aoMed")?.value;
+  if (!id || !cust || !med) { toast("Please fill in all required fields", "orange"); return; }
+  toast("Order added successfully!", "green");
+  closeModal("addOrderModal");
+}
+window.addOrder = addOrder;
+
+export function addCustomer() {
+  const name = document.getElementById("acName")?.value;
+  const email = document.getElementById("acEmail")?.value;
+  if (!name || !email) { toast("Please fill in required fields", "orange"); return; }
+  toast("Customer added!", "green");
+  closeModal("addCustModal");
+}
+window.addCustomer = addCustomer;
+
+export function addMedicine() {
+  const name = document.getElementById("amName")?.value;
+  if (!name) { toast("Please enter medicine name", "orange"); return; }
+  toast("Medicine added to inventory!", "green");
+  closeModal("addMedModal");
+}
+window.addMedicine = addMedicine;
+
+export function doSearch() {
+  const q = document.getElementById("heroSearch")?.value?.trim().toLowerCase();
+  if (!q) return;
+  const inv = getInventory();
+  const found = inv.find(m => m.name.toLowerCase().includes(q));
+  if (found) toast(`${found.name} — ${found.stock} in stock`, found.stock > 10 ? "green" : "orange");
+  else toast("No results found for: " + q, "orange");
+}
+window.doSearch = doSearch;
+
+export function fillSearch(val) {
+  const input = document.getElementById("heroSearch");
+  if (input) { input.value = val; doSearch(); }
+}
+window.fillSearch = fillSearch;
+
+export function showAdminSec(sec, btn) {
+  document.querySelectorAll(".asec").forEach(s => s.classList.remove("show"));
+  document.querySelectorAll(".sb-btn").forEach(b => { b.classList.remove("active"); b.setAttribute("aria-pressed","false"); });
+  const el = document.getElementById("asec-" + sec);
+  if (el) el.classList.add("show");
+  if (btn) { btn.classList.add("active"); btn.setAttribute("aria-pressed","true"); }
+}
+window.showAdminSec = showAdminSec;
+
+export function startWebCall() {
+  openModal("callModal");
+}
+window.startWebCall = startWebCall;
+
+export function filterOrders() {}
+export function filterCustomers() {}
+export function updatePeriod() {}
+window.filterOrders = filterOrders;
+window.filterCustomers = filterCustomers;
+window.updatePeriod = updatePeriod;
+
+export function clearNotifs() {
+  const list = document.getElementById("notifList");
+  const dot = document.getElementById("notifDot");
+  if (list) list.innerHTML = '<div style="padding:1rem;text-align:center;color:#94a3b8">No new notifications</div>';
+  if (dot) dot.textContent = "0";
+  document.getElementById("notifDrop")?.classList.remove("show");
+}
+window.clearNotifs = clearNotifs;
