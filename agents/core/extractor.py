@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from openai import AzureOpenAI
 from pydantic import BaseModel
 from typing import Optional
+from langsmith import traceable
 
 load_dotenv()
 

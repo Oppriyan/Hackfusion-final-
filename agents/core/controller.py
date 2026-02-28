@@ -1,15 +1,20 @@
 # agents/core/controller.py
 
+from langsmith import traceable
+
 from agents.tools.tools import (
     check_inventory,
     create_order,
     verify_prescription,
     check_prescription_status,
-    get_customer_history
+    get_customer_history,
+    cancel_order,
+    get_order_status,
+    search_medicines
 )
 
-def handle_intent(request):
-
+def handle_intent(request, user_input=None):
+    
     if not request:
         return {"status": "error", "message": "Invalid request"}
 
@@ -17,6 +22,36 @@ def handle_intent(request):
     customer_id = request.customer_id or "PAT001"
     medicine = request.medicine_name
     quantity = request.quantity
+
+    user_input_lower = user_input.lower() if user_input else ""
+
+    # ==================================================
+    # HARD MAPPED COMMANDS (No LLM risk)
+    # ==================================================
+
+    # CANCEL ORDER
+    if "cancel order" in user_input_lower:
+        try:
+            order_id = int(user_input_lower.split("cancel order")[1].strip())
+            return cancel_order(order_id)
+        except:
+            return {"status": "error", "message": "Invalid order ID"}
+
+    # ORDER STATUS
+    if "order status" in user_input_lower:
+        try:
+            order_id = int(user_input_lower.split("order status")[1].strip())
+            return get_order_status(order_id)
+        except:
+            return {"status": "error", "message": "Invalid order ID"}
+
+    # SEARCH MEDICINES
+    if "search" in user_input_lower:
+        try:
+            query = user_input_lower.split("search")[1].strip()
+            return search_medicines(query)
+        except:
+            return {"status": "error", "message": "Invalid search query"}
 
     # ==================================================
     # INVENTORY
@@ -36,13 +71,7 @@ def handle_intent(request):
         if not medicine:
             return {"status": "error", "code": "missing_medicine"}
 
-        # 🔥 DEBUG structured quantity
-        print("DEBUG ORDER QUANTITY:", quantity)
-
-        if quantity is None:
-            quantity = 1
-
-        if quantity <= 0:
+        if quantity is None or quantity <= 0:
             return {
                 "status": "error",
                 "code": "invalid_quantity",
@@ -60,17 +89,17 @@ def handle_intent(request):
             return {"status": "error", "code": "not_found"}
 
         item = data_list[0]
+
         medicine_id = item.get("medicine_id")
-        medicine_name = item.get("name")
         prescription_required = item.get("prescription_required") == "Yes"
 
-        # 🔥 FIXED: Use medicine NAME for prescription check
         if prescription_required:
-            status_check = check_prescription_status(customer_id, medicine_name)
+            status_check = check_prescription_status(
+                customer_id,
+                item.get("name")
+            )
 
-            print("DEBUG PRESCRIPTION STATUS:", status_check)
-
-            if not status_check.get("data", {}).get("verified"):
+            if status_check.get("status") != "valid":
                 return {
                     "status": "error",
                     "code": "prescription_required"
@@ -98,8 +127,6 @@ def handle_intent(request):
 
         item = data_list[0]
         medicine_name = item.get("name")
-
-        print("DEBUG UPLOAD MEDICINE NAME:", medicine_name)
 
         return verify_prescription(customer_id, medicine_name)
 

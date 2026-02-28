@@ -9,17 +9,26 @@ def generate_response(user_input, tool_result, prediction=None):
     code = tool_result.get("code")
     data = tool_result.get("data")
 
+    # ==================================================
     # SMALLTALK
+    # ==================================================
     if status == "smalltalk":
         return "Hello! How can I assist you with your pharmacy needs today?"
 
+    # ==================================================
     # PRESCRIPTION VERIFIED
+    # ==================================================
     if status == "verified":
         return f"Prescription successfully verified. Valid until {tool_result.get('valid_until')}."
 
+    # ==================================================
     # SUCCESS RESPONSES
+    # ==================================================
     if status == "success":
 
+        # -------------------------
+        # LIST RESPONSES (Inventory / History)
+        # -------------------------
         if isinstance(data, list):
 
             if not data:
@@ -36,7 +45,7 @@ def generate_response(user_input, tool_result, prediction=None):
                     f"Prescription Required: {first.get('prescription_required')}"
                 )
 
-            # HISTORY (FIXED — using 'date')
+            # HISTORY
             if "date" in first:
                 lines = ["Here are your previous orders:"]
                 for order in data:
@@ -48,18 +57,37 @@ def generate_response(user_input, tool_result, prediction=None):
                     )
                 return "\n".join(lines)
 
-        # ORDER SUCCESS
-        if isinstance(data, dict) and data.get("order_id"):
+        # -------------------------
+        # ORDER STATUS
+        # -------------------------
+        if isinstance(data, dict) and data.get("order_id") and data.get("status"):
             return (
-                f"Your order has been successfully placed.\n"
-                f"Medicine: {data.get('medicine')}\n"
-                f"Quantity: {data.get('quantity')}\n"
-                f"Total Price: €{data.get('total_price')}"
+                f"Order ID: {data.get('order_id')}\n"
+                f"Status: {data.get('status')}"
             )
 
+        # -------------------------
+        # ORDER SUCCESS
+        # -------------------------
+        if isinstance(data, dict) and data.get("order_id"):
+           return (
+    f"Order ID: {data.get('order_id')}\n"
+    f"Medicine: {data.get('medicine')}\n"
+    f"Quantity: {data.get('quantity')}\n"
+    f"Total Price: €{data.get('total_price')}"
+)
+
+        # -------------------------
+        # GENERIC SUCCESS MESSAGE (Cancel etc.)
+        # -------------------------
+        if tool_result.get("message"):
+            return tool_result.get("message")
+
+    # ==================================================
     # ERROR RESPONSES
+    # ==================================================
     if code == "not_found":
-        return "Medicine not found."
+        return tool_result.get("message", "Record not found.")
 
     if code == "insufficient_stock":
         return "Insufficient stock available."
@@ -73,4 +101,7 @@ def generate_response(user_input, tool_result, prediction=None):
     if status == "error":
         return tool_result.get("message", "Something went wrong.")
 
+    # ==================================================
+    # FALLBACK
+    # ==================================================
     return "I’m here to help with medicine availability, orders, and prescriptions."
