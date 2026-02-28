@@ -3,8 +3,14 @@
 from agents.tools.tools import (
     check_inventory,
     create_order,
+<<<<<<< HEAD
     update_stock,
     get_customer_history
+=======
+    verify_prescription,
+    get_customer_history,
+    update_stock
+>>>>>>> e0f03a3adbcb155a1f91f0b23c0b923665fddbc9
 )
 from agents.core.memory import save_last_medicine, get_last_medicine
 from agents.core.prescription_rules import requires_prescription
@@ -15,6 +21,12 @@ from agents.core.prescription_memory import is_prescription_verified, mark_presc
 def handle_intent(request):
     # Default customer ID if none provided
     customer_id = request.customer_id or "PAT001"
+<<<<<<< HEAD
+=======
+    medicine = request.medicine_name
+    quantity = request.quantity or 1
+    delta = request.delta
+>>>>>>> e0f03a3adbcb155a1f91f0b23c0b923665fddbc9
 
     # ---------------------------------------------------------
     # INTENT: ORDER MEDICINE
@@ -59,9 +71,25 @@ def handle_intent(request):
                 "details": limit_check
             }
 
+<<<<<<< HEAD
         # 3. Inventory Check
         inventory = check_inventory(request.medicine_name)
         if inventory.get("status") != "ok":
+=======
+    # ==================================================
+    # ORDER FLOW
+    # ==================================================
+    if intent == "order":
+
+        if not medicine:
+            return {"status": "error", "message": "Medicine name required"}
+
+        quantity = quantity if quantity and quantity > 0 else 1
+
+        inventory = check_inventory(medicine)
+
+        if inventory.get("status") != "success":
+>>>>>>> e0f03a3adbcb155a1f91f0b23c0b923665fddbc9
             return inventory
 
         if not inventory.get("available"):
@@ -75,6 +103,7 @@ def handle_intent(request):
             request.quantity
         )
 
+<<<<<<< HEAD
         if order.get("status") == "rejected" and order.get("reason") == "insufficient_stock":
             trigger_admin_alert(
                 "insufficient_stock_attempt",
@@ -82,9 +111,26 @@ def handle_intent(request):
                     "medicine": request.medicine_name,
                     "requested_quantity": request.quantity,
                     "available_stock": order.get("available_stock")
+=======
+        medicine_data = data_list[0]
+
+        medicine_id = medicine_data.get("medicine_id")
+        prescription_required = medicine_data.get("prescription_required") == "Yes"
+
+        if prescription_required:
+
+            verify = verify_prescription(customer_id, medicine_id)
+
+            if verify.get("status") != "success":
+                return {
+                    "status": "error",
+                    "code": "prescription_required",
+                    "message": "Valid prescription required"
+>>>>>>> e0f03a3adbcb155a1f91f0b23c0b923665fddbc9
                 }
             )
 
+<<<<<<< HEAD
         if order.get("status") == "created":
             save_last_medicine(customer_id, request.medicine_name)
             trigger_admin_alert(
@@ -111,6 +157,9 @@ def handle_intent(request):
                 )
 
         return order
+=======
+        return create_order(customer_id, medicine, quantity)
+>>>>>>> e0f03a3adbcb155a1f91f0b23c0b923665fddbc9
 
     # ---------------------------------------------------------
     # INTENT: UPLOAD PRESCRIPTION
@@ -138,6 +187,7 @@ def handle_intent(request):
     elif request.intent == "history":
         return get_customer_history(customer_id)
 
+<<<<<<< HEAD
     # ---------------------------------------------------------
     # INTENT: UPDATE STOCK (ADMIN)
     # ---------------------------------------------------------
@@ -162,6 +212,22 @@ def handle_intent(request):
     # INTENT: SMALLTALK
     # ---------------------------------------------------------
     elif request.intent == "smalltalk":
+=======
+    # ==================================================
+    # UPDATE STOCK
+    # ==================================================
+    if intent == "update_stock":
+
+        if not medicine or delta is None:
+            return {"status": "error", "message": "Medicine and stock delta required"}
+
+        return update_stock(medicine, delta)
+
+    # ==================================================
+    # SMALLTALK
+    # ==================================================
+    if intent == "smalltalk":
+>>>>>>> e0f03a3adbcb155a1f91f0b23c0b923665fddbc9
         return {"status": "smalltalk"}
 
     return {"status": "error", "reason": "unknown_intent"}

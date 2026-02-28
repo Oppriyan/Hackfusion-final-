@@ -54,6 +54,19 @@ if __name__ == "__main__":
         # ==============================
         "asdfghjkl",
         "",
+
+        # ==============================
+        # 🔟 ENTERPRISE EXTRACTION VALIDATION
+        # ==============================
+        "Order 0 Paracetamol",                 # quantity sanitize → 1
+        "Order Paracetamol",                   # missing quantity → default 1
+        "History",                             # single-word history
+        "Increase stock of Paracetamol by 5",  # update_stock intent
+        "Reduce stock of Paracetamol by 3",    # negative delta handling
+        "Upload prescription for Ramipril",    # upload_prescription intent
+        "Order -5 Paracetamol",                # negative quantity → sanitize
+        "Order 2000 Paracetamol",              # upper bound clamp
+        "Random nonsense sentence here",       # fallback
     ]
 
     for user_input in test_inputs:
