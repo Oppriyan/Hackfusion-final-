@@ -73,12 +73,12 @@ def create_order_route():
         return jsonify(response), status
 
     except Exception as e:
-        print("CREATE ORDER ERROR:", str(e))  # <-- important debug log
-        return jsonify({
-            "status": "error",
-            "code": "internal_error",
-            "message": "Order endpoint failed"
-        }), 500
+     print("CREATE ORDER ERROR:", str(e))
+    return jsonify({
+        "status": "error",
+        "code": "internal_error",
+        "message": str(e)   # show real error temporarily
+    }), 500
 
 
 # -------------------------------------------------
