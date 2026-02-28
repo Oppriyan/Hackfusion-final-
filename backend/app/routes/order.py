@@ -72,13 +72,14 @@ def create_order_route():
 
         return jsonify(response), status
 
-    except Exception as e:
-     print("CREATE ORDER ERROR:", str(e))
-    return jsonify({
+    except Exception:
+     conn.rollback()
+     conn.close()
+    return {
         "status": "error",
         "code": "internal_error",
-        "message": str(e)   # show real error temporarily
-    }), 500
+        "message": "Transaction failed"
+    }, 500
 
 
 # -------------------------------------------------

@@ -133,10 +133,9 @@ def create_order(customer_id: str = None, medicine_id: str = None, quantity: int
             }
         }, 201
 
-    except Exception as e:
+    except Exception:
         conn.rollback()
         conn.close()
-        print("CREATE ORDER SERVICE ERROR:", str(e))
         return {
             "status": "error",
             "code": "internal_error",
