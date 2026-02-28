@@ -47,7 +47,10 @@ client = AzureOpenAI(
 def extract_structured_request(user_input: str) -> StructuredRequest:
 
     raw = _llm_extract(user_input)
+    print("DEBUG RAW LLM OUTPUT:", raw)
+
     normalized = _normalize_and_validate(raw)
+    print("DEBUG NORMALIZED OUTPUT:", normalized)
 
     return StructuredRequest(**normalized)
 
@@ -108,7 +111,8 @@ Return ONLY valid JSON.
         content = response.choices[0].message.content.strip()
         return json.loads(content)
 
-    except Exception:
+    except Exception as e:
+        print("DEBUG LLM ERROR:", e)
         return {
             "intent": "smalltalk",
             "medicine_name": None,
@@ -133,23 +137,18 @@ def _normalize_and_validate(data: dict) -> dict:
     # Intent Downgrade Logic
     # -------------------------
 
-    # Order must have medicine
     if intent == "order" and not medicine:
         intent = "smalltalk"
 
-    # Inventory must have medicine
     if intent == "inventory" and not medicine:
         intent = "smalltalk"
 
-    # Update stock must have medicine and delta
     if intent == "update_stock" and (not medicine or delta is None):
         intent = "smalltalk"
 
-    # Upload prescription must have medicine
     if intent == "upload_prescription" and not medicine:
         intent = "smalltalk"
 
-    # History should not carry medicine/quantity
     if intent == "history":
         medicine = None
         quantity = None
