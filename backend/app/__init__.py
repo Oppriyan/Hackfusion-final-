@@ -11,6 +11,7 @@ from app.routes.order import order_bp
 from app.routes.chat import chat_bp
 from app.routes.prescription import prescription_bp
 from app.routes.webhook import webhook_bp
+from app.routes.analytics import analytics_bp
 
 
 def create_app():
@@ -31,6 +32,7 @@ def create_app():
     app.register_blueprint(chat_bp)
     app.register_blueprint(prescription_bp)
     app.register_blueprint(webhook_bp)
+    app.register_blueprint(analytics_bp)
 
     # Health check
     @app.route("/health", methods=["GET"])
