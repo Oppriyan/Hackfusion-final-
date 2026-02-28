@@ -85,6 +85,49 @@ export const sendSupportMessage = (message, customer_id) =>
   });
 
 // ============================================================
+// SEARCH
+// ============================================================
+
+export const searchInventory = (query) =>
+  request(`/inventory/search?query=${encodeURIComponent(query)}`);
+
+// ============================================================
+// VOICE
+// ============================================================
+
+export const sendVoiceTranscript = (message) =>
+  request("/vapi-webhook", {
+    method: "POST",
+    body: JSON.stringify({ message })
+  });
+
+// ============================================================
+// PRESCRIPTION UPLOAD (multipart — handled directly)
+// ============================================================
+
+export async function uploadPrescription(customer_id, medicine_id, file) {
+  try {
+    const formData = new FormData();
+    formData.append("customer_id", customer_id);
+    formData.append("medicine_id", medicine_id);
+    formData.append("file", file);
+
+    const response = await fetch(`${API_BASE}/upload-prescription`, {
+      method: "POST",
+      body: formData
+      // Do NOT set Content-Type manually — browser sets multipart boundary
+    });
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data?.message || "Upload failed");
+    return { status: "success", data };
+  } catch (error) {
+    console.error("API ERROR:", error.message);
+    return { status: "error", message: error.message };
+  }
+}
+
+// ============================================================
 // ANALYTICS (ADMIN)
 // ============================================================
 

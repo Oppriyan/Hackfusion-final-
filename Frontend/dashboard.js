@@ -3,8 +3,9 @@
 // ============================================================
 
 import { getInventory, setInventory } from "./state.js";
-import { getInventory as fetchInventory } from "./api.js";
+import { getInventory as fetchInventory, getUserMetrics, getOrderHistory, getRefills } from "./api.js";
 import { toast } from "./ui.js";
+import { DEFAULT_CUSTOMER_ID } from "./config.js";
 
 let chartsInitialized = false;
 
@@ -25,7 +26,14 @@ export async function loadDashboardData() {
   setInventory(response.data);
 
   renderInventoryTable();
-  renderMetrics();
+
+  // Try to load real user metrics, fall back to mock
+  const metricsResponse = await getUserMetrics(DEFAULT_CUSTOMER_ID);
+  if (metricsResponse && metricsResponse.status === "success") {
+    renderMetrics(metricsResponse.data);
+  } else {
+    renderMetrics(null); // Uses mock fallback
+  }
 
   if (!chartsInitialized) {
     chartsInitialized = true;
@@ -74,24 +82,29 @@ function renderInventoryTable() {
 // USER DASHBOARD METRICS
 // ============================================================
 
-function renderMetrics() {
+function renderMetrics(realData = null) {
 
   const inventory = getInventory();
 
-  // User-facing metrics (mock data for demo)
-  const uOrders = document.getElementById("uMetOrders");
-  const uRx = document.getElementById("uMetRx");
-  const uRefills = document.getElementById("uMetRefills");
-  const uAlerts = document.getElementById("uMetAlerts");
+  // Use real data if available, otherwise fall back to mock
+  const orders   = realData?.total_orders   ?? "7";
+  const rx       = realData?.prescriptions  ?? "2";
+  const refills  = realData?.refills        ?? "2";
+  const alerts   = realData?.alerts         ?? "1";
 
-  if (uOrders) uOrders.textContent = "7";
-  if (uRx) uRx.textContent = "2";
-  if (uRefills) uRefills.textContent = "2";
-  if (uAlerts) uAlerts.textContent = "1";
+  const uOrders  = document.getElementById("uMetOrders");
+  const uRx      = document.getElementById("uMetRx");
+  const uRefills = document.getElementById("uMetRefills");
+  const uAlerts  = document.getElementById("uMetAlerts");
+
+  if (uOrders)  uOrders.textContent  = orders;
+  if (uRx)      uRx.textContent      = rx;
+  if (uRefills) uRefills.textContent = refills;
+  if (uAlerts)  uAlerts.textContent  = alerts;
 
   // Order count badge
   const badge = document.getElementById("uOrderCount");
-  if (badge) badge.textContent = "7 total";
+  if (badge) badge.textContent = `${orders} total`;
 
   // Keep legacy stock for the medicines table
   const lowEl = document.getElementById("dMetLow");
