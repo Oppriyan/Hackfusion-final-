@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Web Agent – Smart Pharmacy</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<title>Pharmly – Smart Pharmacy</title>
+<link rel="preconnect" href="https://api.fontshare.com">
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,800,700,600,500,400,300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 /* ============================================================
@@ -36,13 +37,13 @@
   --r1: 8px; --r2: 12px; --r3: 18px; --r4: 28px; --r5: 100px;
   --tr: all 0.22s cubic-bezier(0.4,0,0.2,1);
 }
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;font-family:'Satoshi',system-ui,sans-serif}
 html{scroll-behavior:smooth;font-size:16px}
-body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--g1);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{font-family:'Satoshi',system-ui,sans-serif;background:var(--white);color:var(--g1);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 h1,h2,h3,h4,h5{font-family:'Outfit',sans-serif;font-weight:700;line-height:1.15}
 a{text-decoration:none;color:inherit;transition:var(--tr)}
-button{cursor:pointer;border:none;outline:none;font-family:'DM Sans',sans-serif;transition:var(--tr)}
-input,select,textarea{font-family:'DM Sans',sans-serif;outline:none;border:none}
+button{cursor:pointer;border:none;outline:none;font-family:'Satoshi',system-ui,sans-serif;transition:var(--tr)}
+input,select,textarea{font-family:'Satoshi',system-ui,sans-serif;outline:none;border:none}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:var(--g6)}
 ::-webkit-scrollbar-thumb{background:var(--b5);border-radius:3px}
@@ -136,8 +137,50 @@ input,select,textarea{font-family:'DM Sans',sans-serif;outline:none;border:none}
 @keyframes toastIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
 
 /* ============================================================
-   NOTIFICATIONS DROPDOWN
+   CART DROPDOWN
 ============================================================ */
+.cart-wrap{position:relative}
+.cart-drop{position:absolute;top:calc(100% + 8px);right:0;width:360px;background:white;border-radius:var(--r3);box-shadow:var(--sh4);border:1px solid var(--g5);z-index:2000;display:none}
+.cart-drop.show{display:block}
+.cart-head{padding:.875rem 1.25rem;border-bottom:1px solid var(--g5);display:flex;align-items:center;justify-content:space-between;font-size:.875rem;font-weight:700}
+.cart-items{max-height:280px;overflow-y:auto}
+.cart-item{padding:.75rem 1.25rem;border-bottom:1px solid var(--g6);display:flex;align-items:center;gap:10px}
+.cart-item:last-child{border-bottom:none}
+.cart-item-icon{width:36px;height:36px;background:var(--b6);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.cart-item-name{flex:1;font-size:.82rem;font-weight:600;color:var(--g1)}
+.cart-item-qty{font-size:.75rem;color:var(--g3)}
+.cart-item-price{font-weight:700;color:var(--b2);font-size:.85rem}
+.cart-item-del{background:none;color:var(--g4);font-size:1rem;padding:2px 6px;border-radius:4px;transition:var(--tr)}
+.cart-item-del:hover{color:var(--red);background:#fee2e2}
+.cart-foot{padding:1rem 1.25rem;border-top:1px solid var(--g5)}
+.cart-total{display:flex;justify-content:space-between;font-weight:700;font-size:.95rem;margin-bottom:.875rem}
+.cart-total strong{color:var(--b1)}
+.cart-empty{padding:2rem;text-align:center;color:var(--g4);font-size:.875rem}
+
+/* ============================================================
+   PAYMENT MODAL
+============================================================ */
+.pay-card-display{background:linear-gradient(135deg,var(--b1) 0%,var(--b3) 100%);border-radius:var(--r3);padding:1.5rem;color:white;margin-bottom:1.5rem;position:relative;overflow:hidden}
+.pay-card-display::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.08)}
+.pay-card-display::after{content:'';position:absolute;bottom:-40px;left:-20px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.05)}
+.pay-card-chip{width:36px;height:28px;background:linear-gradient(135deg,#f0c040,#d4a017);border-radius:5px;margin-bottom:1.1rem}
+.pay-card-num{font-size:1.1rem;letter-spacing:3px;font-weight:600;margin-bottom:.875rem;font-family:'Outfit',sans-serif}
+.pay-card-bottom{display:flex;justify-content:space-between;align-items:flex-end}
+.pay-card-holder small{font-size:.65rem;opacity:.7;display:block;text-transform:uppercase;letter-spacing:.5px}
+.pay-card-holder span{font-size:.88rem;font-weight:700}
+.pay-card-expiry small{font-size:.65rem;opacity:.7;display:block}
+.pay-card-expiry span{font-size:.88rem;font-weight:700}
+.pay-card-logo{position:absolute;top:1.25rem;right:1.25rem;display:flex;gap:-6px}
+.pay-card-logo .circle{width:28px;height:28px;border-radius:50%;opacity:.9}
+.pay-card-logo .c1{background:#eb001b}
+.pay-card-logo .c2{background:#f79e1b;margin-left:-10px}
+.pay-type-tabs{display:flex;gap:.5rem;margin-bottom:1.25rem}
+.pay-tab{flex:1;padding:9px;border-radius:var(--r1);border:2px solid var(--g5);background:white;font-size:.82rem;font-weight:700;color:var(--g3);text-align:center;cursor:pointer;transition:var(--tr)}
+.pay-tab.active{border-color:var(--b2);background:var(--b6);color:var(--b2)}
+.pay-success{text-align:center;padding:1.5rem 0;display:none}
+.pay-success.show{display:block}
+.pay-success-icon{font-size:3.5rem;margin-bottom:.875rem;animation:orbFloat 2s ease-in-out infinite}
+
 .notif-wrap{position:relative}
 .notif-drop{position:absolute;top:calc(100% + 8px);right:0;width:320px;background:white;border-radius:var(--r3);box-shadow:var(--sh4);border:1px solid var(--g5);z-index:2000;display:none}
 .notif-drop.show{display:block}
@@ -244,7 +287,7 @@ input,select,textarea{font-family:'DM Sans',sans-serif;outline:none;border:none}
 .support-wrap{position:fixed;bottom:1.75rem;left:1.75rem;z-index:1500}
 .chat-toggle-btn{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--b1),var(--b3));color:white;font-size:1.4rem;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(26,111,212,.42);transition:var(--tr)}
 .chat-toggle-btn:hover{transform:scale(1.1);box-shadow:0 12px 30px rgba(26,111,212,.5)}
-.chat-panel{position:absolute;bottom:72px;left:0;width:360px;background:white;border-radius:var(--r4);box-shadow:var(--sh4);border:1px solid var(--g5);display:none;flex-direction:column;overflow:hidden;max-height:530px}
+.chat-panel{position:absolute;bottom:72px;left:0;width:370px;background:white;border-radius:var(--r4);box-shadow:var(--sh4);border:1px solid var(--g5);display:none;flex-direction:column;overflow:hidden;max-height:540px}
 .chat-panel.open{display:flex}
 .chat-ph{background:linear-gradient(135deg,var(--b1),var(--b3));color:white;padding:1.1rem 1.4rem;display:flex;align-items:center;justify-content:space-between}
 .chat-ph strong{font-size:.95rem}
@@ -296,7 +339,7 @@ input,select,textarea{font-family:'DM Sans',sans-serif;outline:none;border:none}
    AI + ADMIN DASHBOARD PAGE
 ============================================================ */
 #page-dashboard{background:var(--g6)}
-.dash-layout{display:grid;grid-template-columns:400px 1fr;height:calc(100vh - 70px);overflow:hidden}
+.dash-layout{display:grid;grid-template-columns:520px 1fr;height:calc(100vh - 70px);overflow:hidden}
 /* AI PANEL */
 .ai-panel{background:white;border-right:1px solid var(--g5);display:flex;flex-direction:column;overflow:hidden}
 .ai-ph{background:linear-gradient(135deg,var(--b1),var(--b3));padding:1.1rem 1.35rem;flex-shrink:0}
@@ -447,7 +490,7 @@ input,select,textarea{font-family:'DM Sans',sans-serif;outline:none;border:none}
    RESPONSIVE
 ============================================================ */
 @media(max-width:1280px){
-  .dash-layout{grid-template-columns:360px 1fr}
+  .dash-layout{grid-template-columns:420px 1fr}
   .metrics{grid-template-columns:repeat(2,1fr)}
   .charts-row{grid-template-columns:1fr}
   .bot-row{grid-template-columns:1fr}
@@ -476,7 +519,7 @@ input,select,textarea{font-family:'DM Sans',sans-serif;outline:none;border:none}
   .metrics{grid-template-columns:1fr}
   .ov-metrics{grid-template-columns:1fr}
   .ep-wrap{padding:2rem 1rem}
-  .chat-panel{width:300px}
+  .chat-panel{width:calc(100vw - 2rem);max-width:340px}
 }
 </style>
 </head>
@@ -487,9 +530,9 @@ input,select,textarea{font-family:'DM Sans',sans-serif;outline:none;border:none}
 ============================================================ -->
 <nav class="navbar" role="navigation" aria-label="Main Navigation">
   <div class="nav-inner">
-    <div class="nav-logo" onclick="goTo('home')" role="button" tabindex="0" aria-label="AI Web Agent Home">
+    <div class="nav-logo" onclick="goTo('home')" role="button" tabindex="0" aria-label="Pharmly Home">
       <div class="nav-logo-icon">⚕</div>
-      AI Web Agent
+      Pharmly
     </div>
 
     <ul class="nav-links" role="list">
@@ -497,7 +540,7 @@ input,select,textarea{font-family:'DM Sans',sans-serif;outline:none;border:none}
       <li><a onclick="goTo('about')" id="nav-about" role="button" tabindex="0">About</a></li>
       <li><a onclick="goTo('dashboard')" id="nav-dashboard" role="button" tabindex="0">AI + Admin Dashboard</a></li>
       <li><a onclick="goTo('admin')" id="nav-admin" role="button" tabindex="0">Admin Panel</a></li>
-      <li><a onclick="goTo('endpoints')" id="nav-endpoints" role="button" tabindex="0">API Docs</a></li>
+      <li><a onclick="goTo('endpoints')" id="nav-endpoints" role="button" tabindex="0">Safety & Precautions</a></li>
     </ul>
 
     <div class="nav-actions">
@@ -511,7 +554,17 @@ input,select,textarea{font-family:'DM Sans',sans-serif;outline:none;border:none}
         </div>
       </div>
       <button class="btn-safety" aria-label="Safety & Compliance">🛡️ <span>Safety</span></button>
-      <button class="nav-icon-btn" aria-label="Cart (3 items)">🛒<span class="badge-dot">3</span></button>
+      <div class="cart-wrap">
+        <button class="nav-icon-btn" onclick="toggleCart()" aria-label="Cart" aria-haspopup="true" id="cartBtn">🛒<span class="badge-dot" id="cartCount">3</span></button>
+        <div class="cart-drop" id="cartDrop" role="dialog" aria-label="Shopping Cart">
+          <div class="cart-head"><span>🛒 Your Cart</span><button onclick="clearCart()" style="background:none;color:var(--b2);font-size:.78rem;font-weight:700">Clear</button></div>
+          <div class="cart-items" id="cartItems"></div>
+          <div class="cart-foot" id="cartFoot">
+            <div class="cart-total"><span>Total</span><strong id="cartTotal">$0.00</strong></div>
+            <button class="btn-primary" onclick="openCheckout()" style="width:100%;justify-content:center">💳 Checkout</button>
+          </div>
+        </div>
+      </div>
       <button class="btn-login" onclick="openModal('loginModal')" aria-label="Login">Login</button>
     </div>
   </div>
@@ -530,8 +583,8 @@ input,select,textarea{font-family:'DM Sans',sans-serif;outline:none;border:none}
   <section class="hero" aria-label="Hero">
     <div class="hero-content">
       <div class="hero-badge"><span class="dot dot-green"></span>AI System Operational · Compliance Engine Active</div>
-      <h1 class="hero-title">The Future of<br><span class="hero-title-grad">Smart Pharmacy</span><br>is Here</h1>
-      <p class="hero-sub">AI-powered medication ordering, real-time inventory management, and prescription verification — all in one intelligent platform built for healthcare professionals.</p>
+      <h1 class="hero-title">Your health,<br><span class="hero-title-grad">handled with care.</span><br>Every order, every day.</h1>
+        <p class="hero-sub">Pharmly brings you AI-powered prescription guidance, real-time medicine availability, and compassionate support — so you can focus on feeling better, not navigating paperwork.</p>
       <div class="hero-btns">
         <button class="btn-primary" onclick="goTo('dashboard')" aria-label="Get Started">🚀 Get Started</button>
         <button class="btn-secondary" aria-label="Watch Demo">▶ Watch Demo</button>
@@ -631,7 +684,7 @@ input,select,textarea{font-family:'DM Sans',sans-serif;outline:none;border:none}
     <div class="cta-inner">
       <div>
         <h2 id="cta-title">Ready to Transform Your Pharmacy?</h2>
-        <p>Join hundreds of pharmacies already using AI Web Agent to streamline operations, reduce errors, and serve patients better.</p>
+        <p>Join hundreds of pharmacies already using Pharmly to streamline operations, reduce errors, and serve patients better.</p>
         <button class="btn-primary" onclick="goTo('dashboard')">🚀 Get Started Free</button>
       </div>
       <div class="cta-card">
@@ -645,7 +698,7 @@ input,select,textarea{font-family:'DM Sans',sans-serif;outline:none;border:none}
 
   <footer class="footer">
     <div class="footer-inner">
-      <div class="nav-logo" style="color:white"><div class="nav-logo-icon">⚕</div>AI Web Agent</div>
+      <div class="nav-logo" style="color:white"><div class="nav-logo-icon">⚕</div>Pharmly</div>
       <nav class="footer-links">
         <a onclick="goTo('home')">Home</a>
         <a onclick="goTo('about')">About</a>
@@ -653,7 +706,7 @@ input,select,textarea{font-family:'DM Sans',sans-serif;outline:none;border:none}
         <a onclick="goTo('admin')">Admin Panel</a>
         <a onclick="goTo('endpoints')">API Docs</a>
       </nav>
-      <div class="footer-meta"><span class="dot dot-green"></span>All Systems Operational<span style="margin-left:1rem">© 2024 AI Web Agent</span></div>
+      <div class="footer-meta"><span class="dot dot-green"></span>All Systems Operational<span style="margin-left:1rem">© 2024 Pharmly</span></div>
     </div>
   </footer>
 </div>
@@ -664,19 +717,19 @@ input,select,textarea{font-family:'DM Sans',sans-serif;outline:none;border:none}
 <div id="page-about" class="page">
   <div class="about-hero">
     <div class="hero-badge" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:white;margin-bottom:1.25rem;display:inline-flex"><span class="dot dot-green"></span>Trusted by 500+ Pharmacies Worldwide</div>
-    <h1>About AI Web Agent</h1>
+    <h1>About Pharmly</h1>
     <p>We're building the future of intelligent, compliant, and human-centered pharmacy management — powered by artificial intelligence and driven by an unwavering commitment to patient safety.</p>
   </div>
 
   <div class="about-grid">
     <div class="about-text">
       <h2>Our Story</h2>
-      <p>AI Web Agent was born from a simple observation: pharmacy management in the modern world was still stuck in outdated systems — paper prescriptions, manual inventory tracking, and zero real-time insights. We saw an opportunity to change that fundamentally.</p>
-      <p>Founded by a team of healthcare technologists, AI researchers, and pharmacists, AI Web Agent set out to build a platform that doesn't just digitize existing workflows — it reimagines them entirely. We asked ourselves: what would pharmacy management look like if it were designed from the ground up today, with everything we know about AI, cloud computing, and user experience?</p>
+      <p>Pharmly was born from a simple observation: pharmacy management in the modern world was still stuck in outdated systems — paper prescriptions, manual inventory tracking, and zero real-time insights. We saw an opportunity to change that fundamentally.</p>
+      <p>Founded by a team of healthcare technologists, AI researchers, and pharmacists, Pharmly set out to build a platform that doesn't just digitize existing workflows — it reimagines them entirely. We asked ourselves: what would pharmacy management look like if it were designed from the ground up today, with everything we know about AI, cloud computing, and user experience?</p>
       <p>The result is a platform that brings together natural language AI (so pharmacists and patients can just talk to it), real-time inventory intelligence, prescription compliance enforcement, and a beautiful dashboard that makes complex data feel simple and actionable.</p>
       <p>Today, we serve hundreds of pharmacies across the country, processing thousands of orders daily, catching prescription violations before they happen, and helping pharmacy teams work smarter — not harder. Our AI assistant handles medication inquiries, flags drug interactions, verifies prescriptions, and even manages reorder alerts automatically.</p>
       <p>But what we're most proud of isn't the technology. It's the patient safety outcomes. Every prescription block, every low-stock alert, every dosage warning caught by our compliance engine represents a real person being protected. That's why we built this. That's why we wake up every morning and keep building it.</p>
-      <p>We believe that the pharmacy of the future is one where healthcare professionals spend more time on what matters — the human side of care — and less time wrestling with spreadsheets, paper forms, and outdated software. AI Web Agent is that future, available today.</p>
+      <p>We believe that the pharmacy of the future is one where healthcare professionals spend more time on what matters — the human side of care — and less time wrestling with spreadsheets, paper forms, and outdated software. Pharmly is that future, available today.</p>
       <p>Whether you're a solo pharmacist running a single store, or a healthcare network managing dozens of locations, our platform scales with you. Our compliance engine automatically adapts to regulations, our AI model learns from your inventory patterns, and our support team is always available when you need a human touch.</p>
       <p>Join us in building a healthier world — one prescription at a time.</p>
     </div>
@@ -716,7 +769,7 @@ input,select,textarea{font-family:'DM Sans',sans-serif;outline:none;border:none}
 
   <footer class="footer">
     <div class="footer-inner">
-      <div class="nav-logo" style="color:white"><div class="nav-logo-icon">⚕</div>AI Web Agent</div>
+      <div class="nav-logo" style="color:white"><div class="nav-logo-icon">⚕</div>Pharmly</div>
       <nav class="footer-links">
         <a onclick="goTo('home')">Home</a><a onclick="goTo('about')">About</a><a onclick="goTo('dashboard')">Dashboard</a><a onclick="goTo('admin')">Admin Panel</a>
       </nav>
@@ -767,7 +820,7 @@ input,select,textarea{font-family:'DM Sans',sans-serif;outline:none;border:none}
     <main class="admin-r" aria-label="Admin Dashboard">
       <div class="dash-header">
         <div>
-          <h1>Admin Dashboard</h1>
+          <h1>User Dashboard</h1>
           <p>Real-time pharmacy intelligence & analytics</p>
         </div>
         <div style="display:flex;gap:.875rem;align-items:center">
@@ -833,6 +886,7 @@ input,select,textarea{font-family:'DM Sans',sans-serif;outline:none;border:none}
       <button class="sb-btn" onclick="showAdminSec('customers',this)" aria-pressed="false"><span>👥</span>Customers</button>
       <button class="sb-btn" onclick="showAdminSec('inventory',this)" aria-pressed="false"><span>💊</span>Inventory</button>
       <button class="sb-btn" onclick="showAdminSec('analytics',this)" aria-pressed="false"><span>📈</span>Analytics</button>
+      <button class="sb-btn" onclick="showAdminSec('payments',this)" aria-pressed="false"><span>💳</span>Payments</button>
       <div class="sb-div"></div>
       <div class="sb-qs">
         <div class="sq-title">Quick Stats</div>
@@ -874,7 +928,7 @@ input,select,textarea{font-family:'DM Sans',sans-serif;outline:none;border:none}
       <section id="asec-orders" class="asec" aria-labelledby="asec-ord-title">
         <div class="asec-title-row"><div><h1 id="asec-ord-title">Orders Management</h1><p class="asec-sub">View, manage and add orders</p></div><button class="btn-primary btn-sm" onclick="openModal('addOrderModal')">➕ Add Order</button></div>
         <div class="filter-row"><input type="search" class="form-input" id="ordSearch" placeholder="Search orders..." style="max-width:280px" oninput="filterOrders()" aria-label="Search orders"><select class="form-input" style="width:140px" onchange="filterOrders()" id="ordStatusFilter" aria-label="Filter by status"><option value="">All Status</option><option>Completed</option><option>In Progress</option><option>Pending</option></select></div>
-        <div class="tbl-wrap"><table class="tbl" aria-label="Orders"><thead><tr><th>Order ID</th><th>Customer</th><th>Medicine</th><th>Price</th><th>Status</th><th>Payment</th><th>Actions</th></tr></thead><tbody id="ordersBody"></tbody></table></div>
+        <div class="tbl-wrap"><table class="tbl" aria-label="Orders"><thead><tr><th>Order ID</th><th>Customer</th><th>Medicine</th><th>Price</th><th>Status</th><th>Payment Method</th><th>Payment Status</th><th>Actions</th></tr></thead><tbody id="ordersBody"></tbody></table></div>
       </section>
 
       <!-- CUSTOMERS -->
@@ -889,6 +943,18 @@ input,select,textarea{font-family:'DM Sans',sans-serif;outline:none;border:none}
         <div class="asec-title-row"><div><h1 id="asec-inv-title">Inventory Management</h1><p class="asec-sub">Track stock levels and manage medicines</p></div><button class="btn-primary btn-sm" onclick="openModal('addMedModal')">➕ Add Medicine</button></div>
         <div class="inv-alerts" id="invAlerts" aria-live="polite"></div>
         <div class="tbl-wrap"><table class="tbl" aria-label="Inventory"><thead><tr><th>Medicine</th><th>Category</th><th>Stock</th><th>Status</th><th>Price</th><th>Rx Required</th><th>Actions</th></tr></thead><tbody id="invBody"></tbody></table></div>
+      </section>
+
+      <!-- PAYMENTS -->
+      <section id="asec-payments" class="asec" aria-labelledby="asec-pay-title">
+        <div class="asec-title-row"><div><h1 id="asec-pay-title">Payment Center</h1><p class="asec-sub">Manage transactions and process payments securely</p></div><button class="btn-primary btn-sm" onclick="openModal('payModal')">💳 New Payment</button></div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.875rem">
+          <div class="mcard"><div class="micon rev">💰</div><div><div class="mval">€42,180</div><div class="mlbl">Total Collected</div><div class="mch pos">▲ 6% this month</div></div></div>
+          <div class="mcard"><div class="micon ord">💳</div><div><div class="mval">28</div><div class="mlbl">Pending Payments</div><div class="mch neg">▼ Needs attention</div></div></div>
+          <div class="mcard"><div class="micon al">🔄</div><div><div class="mval">€1,240</div><div class="mlbl">Refunds Issued</div><div class="mch neu">This month</div></div></div>
+          <div class="mcard"><div class="micon bl">✅</div><div><div class="mval">98.2%</div><div class="mlbl">Success Rate</div><div class="mch pos">▲ Great</div></div></div>
+        </div>
+        <div class="tbl-wrap"><table class="tbl" aria-label="Payments"><thead><tr><th>Order ID</th><th>Patient</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th><th>Action</th></tr></thead><tbody id="payBody"></tbody></table></div>
       </section>
 
       <!-- ANALYTICS -->
@@ -910,9 +976,8 @@ input,select,textarea{font-family:'DM Sans',sans-serif;outline:none;border:none}
 ============================================================ -->
 <div id="page-endpoints" class="page" style="background:var(--g6)">
   <div class="ep-wrap">
-    <h1>📡 Backend API Endpoints</h1>
-    <p>Complete reference for all AI Web Agent backend endpoints. The backend handles all business logic — frontend only sends/receives JSON. All endpoints require Bearer token auth unless marked Public.</p>
-    <div class="base-url-box">Base URL: https://api.aiwebagent.com/v1</div>
+    <h1>🛡️ Safety &amp; Precautions</h1>
+    <p>At Pharmly, the health and safety of every patient is our absolute highest priority. This section provides comprehensive, plain-language guidance on safe medication use, prescription compliance, allergy awareness, data privacy, and platform security. Please read all sections carefully before using the platform and return to this page whenever you have a question about safe use.</p>
 
     <div class="ep-sec"><div class="ep-sec-h">🤖 AI & Chat</div>
       <div class="ep-item"><div class="ep-mrow"><span class="ep-m POST">POST</span><code class="ep-path">/chat-agent</code></div><p class="ep-desc">Send a message to the AI Pharmacy Assistant. Backend handles NLU, medication lookup, prescription checking.</p><div class="ep-code">Request: { <span class="k">"message"</span>: <span class="v">"I need paracetamol 10 tablets"</span> }<br>Response OK: { <span class="k">"reply"</span>: <span class="v">"Got it! Processing..."</span>, <span class="k">"status"</span>: <span class="v">"approved"</span> }<br>Response Rx: { <span class="k">"status"</span>: <span class="v">"rejected"</span>, <span class="k">"reason"</span>: <span class="v">"prescription_required"</span> }</div></div>
@@ -984,7 +1049,7 @@ input,select,textarea{font-family:'DM Sans',sans-serif;outline:none;border:none}
 <div class="overlay" id="loginModal" role="dialog" aria-modal="true" aria-labelledby="loginTitle" onclick="overlayClose(event,'loginModal')">
   <div class="modal-box">
     <h2 class="modal-title" id="loginTitle">Welcome Back</h2>
-    <p class="modal-sub">Login to your AI Web Agent account</p>
+    <p class="modal-sub">Login to your Pharmly account</p>
     <div style="display:flex;flex-direction:column;gap:.875rem">
       <div class="form-group"><label class="form-label" for="liEmail">Email Address</label><input class="form-input" type="email" id="liEmail" placeholder="you@pharmacy.com"></div>
       <div class="form-group"><label class="form-label" for="liPass">Password</label><input class="form-input" type="password" id="liPass" placeholder="••••••••"></div>
@@ -1032,6 +1097,7 @@ input,select,textarea{font-family:'DM Sans',sans-serif;outline:none;border:none}
       <div class="form-group" style="grid-column:span 2"><label class="form-label" for="aoMed">Medicine(s)</label><input class="form-input" id="aoMed" placeholder="Paracetamol (2), Ibuprofen (1)"></div>
       <div class="form-group"><label class="form-label" for="aoPrice">Price ($)</label><input class="form-input" type="number" id="aoPrice" placeholder="25.50" step="0.01"></div>
       <div class="form-group"><label class="form-label" for="aoStatus">Status</label><select class="form-input" id="aoStatus"><option>Pending</option><option>In Progress</option><option>Completed</option></select></div>
+      <div class="form-group"><label class="form-label" for="aoPayment">Payment</label><select class="form-input" id="aoPayment"><option>Card</option><option>Cash</option><option>PayPal</option><option value="Pending">Pending</option></select></div>
     </div>
     <div style="display:flex;gap:.875rem;margin-top:1.4rem">
       <button class="btn-primary" onclick="addOrder()" style="flex:1;justify-content:center">✅ Add Order</button>
@@ -1076,40 +1142,180 @@ input,select,textarea{font-family:'DM Sans',sans-serif;outline:none;border:none}
   </div>
 </div>
 
-<!-- ============================================================
-     JAVASCRIPT
-============================================================ -->
+<!-- PAYMENT / CHECKOUT MODAL -->
+<div class="overlay" id="payModal" role="dialog" aria-modal="true" aria-labelledby="payTitle" onclick="overlayClose(event,'payModal')">
+  <div class="modal-box" style="max-width:480px">
+    <div id="payFormView">
+      <h2 class="modal-title" id="payTitle">💳 Secure Checkout</h2>
+      <p class="modal-sub">Your connection is encrypted and secure.</p>
+
+      <!-- Card Visual -->
+      <div class="pay-card-display">
+        <div class="pay-card-chip"></div>
+        <div class="pay-card-num" id="dispCardNum">•••• •••• •••• ••••</div>
+        <div class="pay-card-bottom">
+          <div class="pay-card-holder"><small>Card Holder</small><span id="dispName">YOUR NAME</span></div>
+          <div class="pay-card-expiry"><small>Expires</small><span id="dispExp">MM/YY</span></div>
+        </div>
+        <div class="pay-card-logo"><div class="circle c1"></div><div class="circle c2"></div></div>
+      </div>
+
+      <!-- Pay type tabs -->
+      <div class="pay-type-tabs">
+        <button class="pay-tab active" onclick="setPayTab(this,'card')">💳 Card</button>
+        <button class="pay-tab" onclick="setPayTab(this,'debit')">🏦 Debit</button>
+        <button class="pay-tab" onclick="setPayTab(this,'paypal')">🅿️ PayPal</button>
+      </div>
+
+      <div id="cardFields" style="display:flex;flex-direction:column;gap:.875rem">
+        <div class="form-group"><label class="form-label" for="payName">Cardholder Name</label><input class="form-input" id="payName" placeholder="Dr. Anna Müller" oninput="updateCard()" maxlength="26"></div>
+        <div class="form-group"><label class="form-label" for="payNum">Card Number</label><input class="form-input" id="payNum" placeholder="1234 5678 9012 3456" oninput="fmtCard(this)" maxlength="19"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.875rem">
+          <div class="form-group"><label class="form-label" for="payExp">Expiry Date</label><input class="form-input" id="payExp" placeholder="MM/YY" oninput="fmtExp(this);updateCard()" maxlength="5"></div>
+          <div class="form-group"><label class="form-label" for="payCvv">CVV</label><input class="form-input" id="payCvv" placeholder="•••" maxlength="4" type="password"></div>
+        </div>
+        <div class="cart-total" style="background:var(--b6);padding:.875rem;border-radius:var(--r2)">
+          <span style="font-size:.9rem">Order Total</span>
+          <strong id="payTotalDisp" style="color:var(--b1);font-size:1.15rem">€0.00</strong>
+        </div>
+        <button class="btn-primary" onclick="processPayment()" style="width:100%;justify-content:center;font-size:1rem">🔒 Pay Now</button>
+        <div style="text-align:center;font-size:.72rem;color:var(--g4)">🔐 256-bit SSL encrypted · PCI DSS compliant · GDPR safe</div>
+      </div>
+
+      <div id="paypalFields" style="display:none;text-align:center;padding:1.25rem 0">
+        <div style="font-size:2.5rem;margin-bottom:.875rem">🅿️</div>
+        <p style="font-size:.9rem;color:var(--g3);margin-bottom:1.25rem">You will be redirected to PayPal to complete your payment securely.</p>
+        <button class="btn-primary" onclick="processPayment()" style="width:100%;justify-content:center;background:linear-gradient(135deg,#003087,#009cde)">Continue to PayPal</button>
+      </div>
+    </div>
+
+    <!-- Success screen -->
+    <div class="pay-success" id="paySuccessView">
+      <div class="pay-success-icon">✅</div>
+      <h2 style="color:var(--green);font-size:1.6rem;margin-bottom:.5rem">Payment Successful!</h2>
+      <p style="color:var(--g3);margin-bottom:1.25rem">Your order has been confirmed and is being processed by our pharmacy team.</p>
+      <div style="background:var(--b6);border-radius:var(--r2);padding:1rem;margin-bottom:1.25rem;font-size:.85rem">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--g3)">Transaction ID</span><strong id="txnId" style="color:var(--b1)">TXN-000000</strong></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--g3)">Amount</span><strong id="txnAmt" style="color:var(--green)">€0.00</strong></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--g3)">Status</span><strong style="color:var(--green)">✅ Approved</strong></div>
+      </div>
+      <button class="btn-primary" onclick="closeModal('payModal');resetPayModal()" style="width:100%;justify-content:center">Done</button>
+    </div>
+
+    <button onclick="closeModal('payModal');resetPayModal()" style="width:100%;background:none;color:var(--g4);font-size:.82rem;margin-top:.5rem">Cancel</button>
+  </div>
+</div>
+
+
 <script>
 // ============================================================
 // DATA
 // ============================================================
 const MED_DB = [
-  { name:'Paracetamol 650',stock:32,cat:'Pain Relief',reorder:10,price:2.50,restricted:false },
-  { name:'Ibuprofen 400mg',stock:5,cat:'Anti-inflammatory',reorder:15,price:3.20,restricted:false },
+  { name:'Paracetamol 500mg',stock:32,cat:'Pain Relief',reorder:10,price:2.06,restricted:false },
+  { name:'Ibuprofen 200mg (Nurofen)',stock:5,cat:'Anti-inflammatory',reorder:15,price:10.98,restricted:false },
   { name:'Amoxicillin 500mg',stock:2,cat:'Antibiotic',reorder:20,price:8.50,restricted:true },
-  { name:'Cetirizine 10mg',stock:45,cat:'Antihistamine',reorder:10,price:1.80,restricted:false },
+  { name:'Cetirizin HEXAL® Drops',stock:45,cat:'Antihistamine',reorder:10,price:13.19,restricted:false },
   { name:'Aspirin 325mg',stock:60,cat:'Pain Relief',reorder:10,price:1.50,restricted:false },
   { name:'Metformin 500mg',stock:28,cat:'Diabetes',reorder:15,price:4.20,restricted:true },
-  { name:'Lisinopril 10mg',stock:18,cat:'Blood Pressure',reorder:10,price:5.60,restricted:true },
+  { name:'Ramipril 10mg',stock:18,cat:'Blood Pressure',reorder:10,price:12.59,restricted:true },
   { name:'Omeprazole 20mg',stock:35,cat:'Gastric',reorder:10,price:6.80,restricted:false },
+  { name:'NORSAN Omega-3 Total',stock:22,cat:'Supplement',reorder:8,price:27.00,restricted:false },
+  { name:'NORSAN Omega-3 Vegan',stock:17,cat:'Supplement',reorder:8,price:29.00,restricted:false },
+  { name:'NORSAN Omega-3 Kapseln',stock:30,cat:'Supplement',reorder:8,price:29.00,restricted:false },
+  { name:'Vividrin® iso EDO® Augentropfen',stock:14,cat:'Ophthalmology',reorder:5,price:8.28,restricted:false },
+  { name:'Aqualibra Filmtabletten',stock:9,cat:'Urology',reorder:5,price:27.82,restricted:true },
+  { name:'Vitasprint Pro Energie',stock:25,cat:'Supplement',reorder:8,price:15.95,restricted:false },
+  { name:'Cystinol akut®',stock:12,cat:'Urology',reorder:5,price:26.50,restricted:false },
+  { name:'Cromo-ratiopharm® Augentropfen',stock:20,cat:'Ophthalmology',reorder:5,price:7.59,restricted:false },
+  { name:'Kijimea Reizdarm PRO',stock:8,cat:'Gastroenterology',reorder:5,price:38.99,restricted:false },
+  { name:'Mucosolvan Retardkapseln',stock:3,cat:'Respiratory',reorder:10,price:39.97,restricted:true },
+  { name:'OMNi-BiOTiC SR-9',stock:18,cat:'Probiotic',reorder:6,price:44.50,restricted:false },
+  { name:'Iberogast® Classic',stock:22,cat:'Gastric',reorder:8,price:28.98,restricted:false },
+  { name:'Hyaluron-ratiopharm® Augentropfen',stock:27,cat:'Ophthalmology',reorder:5,price:13.74,restricted:false },
+  { name:'Augentropfen RedCare',stock:33,cat:'Ophthalmology',reorder:5,price:12.69,restricted:false },
+  { name:'MULTILAC Darmsynbiotikum',stock:41,cat:'Probiotic',reorder:10,price:9.99,restricted:false },
+  { name:'Magnesium Verla® N Dragées',stock:55,cat:'Supplement',reorder:10,price:6.40,restricted:false },
+  { name:'Livocab® Augentropfen',stock:11,cat:'Ophthalmology',reorder:5,price:14.99,restricted:true },
+  { name:'Loperamid akut 2mg',stock:48,cat:'Gastroenterology',reorder:10,price:3.93,restricted:false },
+  { name:'Diclo-ratiopharm Schmerzgel',stock:39,cat:'Pain Relief',reorder:10,price:8.89,restricted:false },
+  { name:'Minoxidil 20mg/ml Spray',stock:6,cat:'Dermatology',reorder:5,price:22.50,restricted:true },
+  { name:'Vigantolvit 2000 IU Vitamin D3',stock:62,cat:'Supplement',reorder:10,price:17.99,restricted:false },
+  { name:'Vitamin B-Komplex-ratiopharm',stock:29,cat:'Supplement',reorder:8,price:24.97,restricted:false },
+  { name:'Centrum Vital+ Mentale Leistung',stock:16,cat:'Supplement',reorder:8,price:19.95,restricted:false },
+  { name:'Bepanthen Wund- und Heilsalbe',stock:44,cat:'Dermatology',reorder:10,price:7.69,restricted:false },
+  { name:'FeniHydrocort Creme 0.25%',stock:19,cat:'Dermatology',reorder:5,price:8.59,restricted:false },
+  { name:'Eucerin UreaRepair PLUS 10%',stock:23,cat:'Dermatology',reorder:6,price:27.75,restricted:false },
+  { name:'DulcoLax® Dragées 5mg',stock:37,cat:'Gastroenterology',reorder:10,price:22.90,restricted:false },
+  { name:'Sinupret® Saft',stock:21,cat:'Respiratory',reorder:8,price:13.30,restricted:false },
+  { name:'Calmvalera Hevert Tropfen',stock:14,cat:'Neurological',reorder:5,price:35.97,restricted:false },
+  { name:'Vitasprint B12 Kapseln',stock:26,cat:'Supplement',reorder:8,price:17.04,restricted:false },
+  { name:'proBIO 6 Probiotik Kapseln',stock:10,cat:'Probiotic',reorder:5,price:34.90,restricted:false },
+  { name:'V-Biotics Flora Complex',stock:15,cat:'Probiotic',reorder:5,price:19.90,restricted:false },
+  { name:'SAW PALMETO 350mg',stock:31,cat:'Supplement',reorder:8,price:8.47,restricted:false },
+  { name:'femiLoges® 4mg Tabletten',stock:7,cat:'Gynaecology',reorder:5,price:20.44,restricted:true },
+  { name:'Panthenol Spray Schaum',stock:43,cat:'Dermatology',reorder:10,price:16.95,restricted:false },
+  { name:'Aveeno Skin Relief Body Lotion',stock:36,cat:'Dermatology',reorder:8,price:14.99,restricted:false },
+  { name:'Cetaphil SA Reinigung',stock:28,cat:'Dermatology',reorder:8,price:13.95,restricted:false },
 ];
 
 let ordersDB = [
-  { id:'#ORD576',cust:'Alice Brown',med:'Paracetamol (2), Ibuprofen (1)',price:'$25.50',status:'Completed',payment:'Paid' },
-  { id:'#ORD575',cust:'Bob Smith',med:'Amoxicillin (3), Cetirizine (2)',price:'$42.00',status:'In Progress',payment:'Pending' },
-  { id:'#ORD574',cust:'Carol White',med:'Aspirin (4), Omeprazole (1)',price:'$15.00',status:'Pending',payment:'Paid' },
-  { id:'#ORD573',cust:'David Lee',med:'Metformin (2), Lisinopril (1)',price:'$48.00',status:'Completed',payment:'Paid' },
-  { id:'#ORD572',cust:'Emma Davis',med:'Cetirizine (5)',price:'$9.00',status:'Completed',payment:'Paid' },
-  { id:'#ORD571',cust:'Frank Johnson',med:'Ibuprofen (2)',price:'$6.40',status:'Pending',payment:'Pending' },
+  { id:'#ORD576',cust:'PAT001 · F/45',med:'Panthenol Spray (1)',price:'€16.95',status:'Completed',payment:'Card' },
+  { id:'#ORD575',cust:'PAT002 · M/62',med:'NORSAN Omega-3 Total (2)',price:'€54.00',status:'Completed',payment:'Card' },
+  { id:'#ORD574',cust:'PAT003 · F/38',med:'Vividrin® Augentropfen (1)',price:'€8.28',status:'In Progress',payment:'Pending' },
+  { id:'#ORD573',cust:'PAT004 · M/55',med:'Mucosolvan Retardkapseln (1)',price:'€39.97',status:'Completed',payment:'Card' },
+  { id:'#ORD572',cust:'PAT005 · F/29',med:'Paracetamol 500mg (3)',price:'€6.18',status:'Completed',payment:'Cash' },
+  { id:'#ORD571',cust:'PAT006 · M/71',med:'Ramipril 10mg (2)',price:'€25.18',status:'In Progress',payment:'Pending' },
+  { id:'#ORD570',cust:'PAT007 · F/33',med:'Centrum Vital+ (1)',price:'€19.95',status:'Completed',payment:'Card' },
+  { id:'#ORD569',cust:'PAT008 · M/42',med:'Minoxidil Spray (1)',price:'€22.50',status:'Pending',payment:'Pending' },
+  { id:'#ORD568',cust:'PAT009 · F/58',med:'Prostata Men Kapseln (1)',price:'€19.99',status:'Completed',payment:'Card' },
+  { id:'#ORD567',cust:'PAT010 · F/27',med:'Natural Intimate Creme (1)',price:'€18.90',status:'Completed',payment:'Card' },
+  { id:'#ORD566',cust:'PAT011 · M/64',med:'Cystinol akut® (2)',price:'€53.00',status:'Completed',payment:'Cash' },
+  { id:'#ORD565',cust:'PAT012 · F/50',med:'Kijimea Reizdarm PRO (1)',price:'€38.99',status:'Pending',payment:'Pending' },
+  { id:'#ORD564',cust:'PAT013 · M/31',med:'Eucerin DERMOPURE Gel (1)',price:'€17.25',status:'Completed',payment:'Card' },
+  { id:'#ORD563',cust:'PAT014 · F/47',med:'OMNi-BiOTiC SR-9 (1)',price:'€44.50',status:'Completed',payment:'Card' },
+  { id:'#ORD562',cust:'PAT015 · M/39',med:'Vitasprint Pro Energie (2)',price:'€31.90',status:'In Progress',payment:'Pending' },
+  { id:'#ORD561',cust:'PAT016 · F/53',med:'femiLoges® 4mg (1)',price:'€20.44',status:'Completed',payment:'Card' },
+  { id:'#ORD560',cust:'PAT017 · M/68',med:'Vigantolvit 2000 IU D3 (1)',price:'€17.99',status:'Completed',payment:'Cash' },
+  { id:'#ORD559',cust:'PAT018 · F/36',med:'Eucerin UreaRepair PLUS (1)',price:'€27.75',status:'Completed',payment:'Card' },
 ];
 
 let custsDB = [
-  { id:'C001',name:'Alice Brown',email:'alice@email.com',phone:'+1-555-0101',city:'New York',orders:12,status:'Active' },
-  { id:'C002',name:'Bob Smith',email:'bob@email.com',phone:'+1-555-0102',city:'Los Angeles',orders:8,status:'Active' },
-  { id:'C003',name:'Carol White',email:'carol@email.com',phone:'+1-555-0103',city:'Chicago',orders:5,status:'Active' },
-  { id:'C004',name:'David Lee',email:'david@email.com',phone:'+1-555-0104',city:'Houston',orders:15,status:'Active' },
-  { id:'C005',name:'Emma Davis',email:'emma@email.com',phone:'+1-555-0105',city:'Phoenix',orders:3,status:'Inactive' },
-  { id:'C006',name:'Frank Johnson',email:'frank@email.com',phone:'+1-555-0106',city:'Philadelphia',orders:7,status:'Active' },
+  { id:'PAT001',name:'Anna M. (F/45)',email:'pat001@pharmly.com',phone:'+49-151-0001',city:'Berlin',orders:6,status:'Active' },
+  { id:'PAT002',name:'Heinrich B. (M/62)',email:'pat002@pharmly.com',phone:'+49-151-0002',city:'Munich',orders:5,status:'Active' },
+  { id:'PAT003',name:'Sabine K. (F/38)',email:'pat003@pharmly.com',phone:'+49-151-0003',city:'Hamburg',orders:4,status:'Active' },
+  { id:'PAT004',name:'Klaus W. (M/55)',email:'pat004@pharmly.com',phone:'+49-151-0004',city:'Cologne',orders:2,status:'Active' },
+  { id:'PAT005',name:'Lisa T. (F/29)',email:'pat005@pharmly.com',phone:'+49-151-0005',city:'Frankfurt',orders:1,status:'Active' },
+  { id:'PAT006',name:'Gerhard R. (M/71)',email:'pat006@pharmly.com',phone:'+49-151-0006',city:'Stuttgart',orders:4,status:'Active' },
+  { id:'PAT007',name:'Monika S. (F/33)',email:'pat007@pharmly.com',phone:'+49-151-0007',city:'Düsseldorf',orders:1,status:'Active' },
+  { id:'PAT008',name:'Thomas H. (M/42)',email:'pat008@pharmly.com',phone:'+49-151-0008',city:'Leipzig',orders:4,status:'Active' },
+  { id:'PAT009',name:'Petra L. (F/58)',email:'pat009@pharmly.com',phone:'+49-151-0009',city:'Dresden',orders:1,status:'Active' },
+  { id:'PAT010',name:'Julia F. (F/27)',email:'pat010@pharmly.com',phone:'+49-151-0010',city:'Nuremberg',orders:1,status:'Active' },
+  { id:'PAT011',name:'Wolfgang D. (M/64)',email:'pat011@pharmly.com',phone:'+49-151-0011',city:'Bremen',orders:2,status:'Active' },
+  { id:'PAT012',name:'Renate P. (F/50)',email:'pat012@pharmly.com',phone:'+49-151-0012',city:'Hannover',orders:1,status:'Active' },
+  { id:'PAT013',name:'Markus V. (M/31)',email:'pat013@pharmly.com',phone:'+49-151-0013',city:'Dortmund',orders:1,status:'Active' },
+  { id:'PAT014',name:'Susanne E. (F/47)',email:'pat014@pharmly.com',phone:'+49-151-0014',city:'Essen',orders:1,status:'Active' },
+  { id:'PAT015',name:'Andreas G. (M/39)',email:'pat015@pharmly.com',phone:'+49-151-0015',city:'Duisburg',orders:1,status:'Active' },
+  { id:'PAT016',name:'Brigitte C. (F/53)',email:'pat016@pharmly.com',phone:'+49-151-0016',city:'Bochum',orders:1,status:'Active' },
+  { id:'PAT017',name:'Dieter Z. (M/68)',email:'pat017@pharmly.com',phone:'+49-151-0017',city:'Bielefeld',orders:1,status:'Active' },
+  { id:'PAT018',name:'Nicole O. (F/36)',email:'pat018@pharmly.com',phone:'+49-151-0018',city:'Wuppertal',orders:1,status:'Active' },
+  { id:'PAT019',name:'Katharina N. (F/44)',email:'pat019@pharmly.com',phone:'+49-151-0019',city:'Bonn',orders:1,status:'Active' },
+  { id:'PAT020',name:'Friedrich M. (M/60)',email:'pat020@pharmly.com',phone:'+49-151-0020',city:'Mannheim',orders:1,status:'Active' },
+  { id:'PAT021',name:'Stephanie I. (F/28)',email:'pat021@pharmly.com',phone:'+49-151-0021',city:'Karlsruhe',orders:1,status:'Active' },
+  { id:'PAT022',name:'Jürgen A. (M/52)',email:'pat022@pharmly.com',phone:'+49-151-0022',city:'Augsburg',orders:1,status:'Active' },
+  { id:'PAT023',name:'Claudia X. (F/41)',email:'pat023@pharmly.com',phone:'+49-151-0023',city:'Wiesbaden',orders:1,status:'Active' },
+  { id:'PAT024',name:'Ralf Y. (M/57)',email:'pat024@pharmly.com',phone:'+49-151-0024',city:'Gelsenkirchen',orders:1,status:'Active' },
+  { id:'PAT025',name:'Monika U. (F/63)',email:'pat025@pharmly.com',phone:'+49-151-0025',city:'Mönchengladbach',orders:1,status:'Active' },
+  { id:'PAT026',name:'Stefan Q. (M/35)',email:'pat026@pharmly.com',phone:'+49-151-0026',city:'Braunschweig',orders:1,status:'Active' },
+  { id:'PAT027',name:'Ute J. (F/49)',email:'pat027@pharmly.com',phone:'+49-151-0027',city:'Kiel',orders:1,status:'Active' },
+  { id:'PAT028',name:'Bernd H. (M/66)',email:'pat028@pharmly.com',phone:'+49-151-0028',city:'Magdeburg',orders:1,status:'Active' },
+  { id:'PAT029',name:'Eva R. (F/32)',email:'pat029@pharmly.com',phone:'+49-151-0029',city:'Freiburg',orders:1,status:'Active' },
+  { id:'PAT030',name:'Horst K. (M/59)',email:'pat030@pharmly.com',phone:'+49-151-0030',city:'Erfurt',orders:1,status:'Active' },
+  { id:'PAT031',name:'Ingrid S. (F/43)',email:'pat031@pharmly.com',phone:'+49-151-0031',city:'Rostock',orders:1,status:'Active' },
+  { id:'PAT032',name:'Karl M. (M/37)',email:'pat032@pharmly.com',phone:'+49-151-0032',city:'Kassel',orders:1,status:'Active' },
+  { id:'PAT033',name:'Liesel T. (F/54)',email:'pat033@pharmly.com',phone:'+49-151-0033',city:'Halle',orders:1,status:'Active' },
+  { id:'PAT034',name:'Otto V. (M/48)',email:'pat034@pharmly.com',phone:'+49-151-0034',city:'Mainz',orders:1,status:'Active' },
+  { id:'PAT035',name:'Paula W. (F/30)',email:'pat035@pharmly.com',phone:'+49-151-0035',city:'Lübeck',orders:1,status:'Active' },
 ];
 
 let invDB = [...MED_DB];
@@ -1257,7 +1463,7 @@ const CHAT_FLOW = {
   voice_fix: { msg:"Voice issues are usually browser permissions. Click the 🔒 lock icon → Set Microphone to Allow → Refresh. Did that help?", opts:[{l:"✅ Fixed! Thanks",n:'resolved'},{l:"❌ Still not working",n:'connect'}] },
   upload_fix: { msg:"Upload issues: ensure your file is JPG/PNG/PDF under 10MB. Within those limits?", opts:[{l:"Yes, within limits",n:'connect'},{l:"Let me check",n:'resolved'}] },
   resolved: { msg:"🎉 Great! Glad we could help. Is there anything else?", opts:[{l:"No, thanks!",n:'done'}] },
-  done: { msg:"You're welcome! Thank you for using AI Web Agent. Have a great day! 💙", opts:[] },
+  done: { msg:"You're welcome! Thank you for using Pharmly. Have a great day! 💙", opts:[] },
   connect: { msg:"I'm connecting you with our support & maintenance team now.\n\n📞 **Connecting to human agent...**\n⏱️ Estimated wait: 2-3 minutes\n\nOr reach us at:\n📧 support@aiwebagent.com\n📱 +1-800-AIPHARM", opts:[{l:"✅ OK, I'll wait",n:'done'}] },
 };
 
@@ -1352,8 +1558,10 @@ function initDashTables() {
   // Orders table
   document.getElementById('dOrdersBody').innerHTML = ordersDB.slice(0,5).map(o => {
     const sc = o.status==='Completed'?'green':o.status==='In Progress'?'orange':'blue';
-    const pc = o.payment==='Paid'?'green':'orange';
-    return `<tr><td><strong>${o.id}</strong></td><td>${o.med}</td><td><strong>${o.price}</strong></td><td><span class="badge badge-${sc}">${o.status}</span></td><td><span class="badge badge-${pc}">${o.payment}</span></td></tr>`;
+    const micon=o.payment==='Card'?'💳':o.payment==='Cash'?'💵':o.payment==='PayPal'?'🅿️':'⏳';
+    const pstat=o.payment==='Pending'?'Pending':'Paid';
+    const pc=pstat==='Paid'?'green':'orange';
+    return `<tr><td><strong>${o.id}</strong></td><td>${o.med}</td><td><strong>${o.price}</strong></td><td><span class="badge badge-${sc}">${o.status}</span></td><td>${micon} <span class="badge badge-${pc}">${pstat}</span></td></tr>`;
   }).join('');
 
   // Top sellers
@@ -1414,7 +1622,8 @@ async function sendAiMsg() {
         document.getElementById('rxBanner').classList.add('show');
       } else {
         const qty = (l.match(/\d+/) || ['10'])[0];
-        reply = `✅ **Order Confirmed!**\n\n• Medicine: ${found.name}\n• Quantity: ${qty} tablets\n• Order ID: #ORD${Math.floor(Math.random()*999+500)}\n• Status: Processing\n\n📬 Pharmacy notified. Ready in ~30 mins.`;
+        reply = `✅ **Order Confirmed!**\n\n• Medicine: ${found.name}\n• Quantity: ${qty} tablets\n• Order ID: #ORD${Math.floor(Math.random()*999+500)}\n• Status: Processing\n\n📬 Pharmacy notified. Ready in ~30 mins.\n\n💳 Added to your cart — use the 🛒 icon to checkout.`;
+        addToCart(found.name, found.price);
         const cur = parseInt(document.getElementById('dMetOrd').textContent.replace(/,/g,''));
         document.getElementById('dMetOrd').textContent = (cur + 1).toLocaleString();
         toast(`Order placed for ${found.name}!`, 'green');
@@ -1496,6 +1705,7 @@ function showAdminSec(name, btn) {
   document.querySelectorAll('.sb-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed','false'); });
   if (btn) { btn.classList.add('active'); btn.setAttribute('aria-pressed','true'); }
   if (name === 'analytics' && !adminAnInit) { adminAnInit = true; setTimeout(initAnalyticsCharts, 100); }
+  if (name === 'payments') { renderPaymentsTable(); }
 }
 
 function initAdminOvCharts() {
@@ -1517,8 +1727,10 @@ function initAdminOvCharts() {
 function renderAdminOvData() {
   document.getElementById('ovOrdersBody').innerHTML = ordersDB.slice(0,5).map(o => {
     const sc=o.status==='Completed'?'green':o.status==='In Progress'?'orange':'blue';
-    const pc=o.payment==='Paid'?'green':'orange';
-    return `<tr><td><strong>${o.id}</strong></td><td>${o.med}</td><td><strong>${o.price}</strong></td><td><span class="badge badge-${sc}">${o.status}</span></td><td><span class="badge badge-${pc}">${o.payment}</span></td><td><div class="action-btns"><button class="ab edit">✏️</button><button class="ab del" onclick="delOrder('${o.id}')">🗑️</button></div></td></tr>`;
+    const micon=o.payment==='Card'?'💳':o.payment==='Cash'?'💵':o.payment==='PayPal'?'🅿️':'⏳';
+    const pstat=o.payment==='Pending'?'Pending':'Paid';
+    const pc=pstat==='Paid'?'green':'orange';
+    return `<tr><td><strong>${o.id}</strong></td><td>${o.med}</td><td><strong>${o.price}</strong></td><td><span class="badge badge-${sc}">${o.status}</span></td><td>${micon} <span class="badge badge-${pc}">${pstat}</span></td><td><div class="action-btns"><button class="ab edit">✏️</button><button class="ab del" onclick="delOrder('${o.id}')">🗑️</button></div></td></tr>`;
   }).join('');
   document.getElementById('ovTopProds').innerHTML = TOP_SELLERS.map(p=>`<div class="top-prod-item"><div class="tp-icon">${p.icon}</div><div class="tp-name"><strong>${p.name}</strong><small>${p.sold}</small></div><div class="tp-price">${p.revenue}</div></div>`).join('');
 }
@@ -1526,8 +1738,10 @@ function renderAdminOvData() {
 function renderOrders(data = ordersDB) {
   document.getElementById('ordersBody').innerHTML = data.map(o => {
     const sc=o.status==='Completed'?'green':o.status==='In Progress'?'orange':'blue';
-    const pc=o.payment==='Paid'?'green':'orange';
-    return `<tr><td><strong>${o.id}</strong></td><td>${o.cust}</td><td>${o.med}</td><td><strong>${o.price}</strong></td><td><span class="badge badge-${sc}">${o.status}</span></td><td><span class="badge badge-${pc}">${o.payment}</span></td><td><div class="action-btns"><button class="ab edit">✏️</button><button class="ab del" onclick="delOrder('${o.id}')">🗑️</button></div></td></tr>`;
+    const pc=o.payment==='Paid'||o.payment==='Card'||o.payment==='Cash'?'green':'orange';
+    const pstat=o.payment==='Pending'?'Pending':'Paid';
+    const micon=o.payment==='Card'?'💳':o.payment==='Cash'?'💵':o.payment==='PayPal'?'🅿️':'⏳';
+    return `<tr><td><strong>${o.id}</strong></td><td>${o.cust}</td><td>${o.med}</td><td><strong>${o.price}</strong></td><td><span class="badge badge-${sc}">${o.status}</span></td><td>${micon} ${o.payment}</td><td><span class="badge badge-${pc}">${pstat}</span></td><td><div class="action-btns"><button class="ab edit">✏️</button><button class="ab del" onclick="delOrder('${o.id}')">🗑️</button></div></td></tr>`;
   }).join('');
 }
 
@@ -1545,9 +1759,9 @@ function delOrder(id) {
 }
 
 function addOrder() {
-  const id=document.getElementById('aoId').value.trim(), cust=document.getElementById('aoCust').value.trim(), med=document.getElementById('aoMed').value.trim(), price=document.getElementById('aoPrice').value.trim(), status=document.getElementById('aoStatus').value;
+  const id=document.getElementById('aoId').value.trim(), cust=document.getElementById('aoCust').value.trim(), med=document.getElementById('aoMed').value.trim(), price=document.getElementById('aoPrice').value.trim(), status=document.getElementById('aoStatus').value, payment=document.getElementById('aoPayment').value;
   if (!id || !cust || !med || !price) { toast('Fill all fields', 'red'); return; }
-  ordersDB.unshift({ id, cust, med, price:'$'+parseFloat(price).toFixed(2), status, payment:'Pending' });
+  ordersDB.unshift({ id, cust, med, price:'€'+parseFloat(price).toFixed(2), status, payment });
   renderOrders(); renderAdminOvData(); closeModal('addOrderModal');
   toast(`Order ${id} added!`, 'green');
   ['aoId','aoCust','aoMed','aoPrice'].forEach(i => document.getElementById(i).value='');
@@ -1630,8 +1844,169 @@ function initAnalyticsCharts() {
 }
 
 // ============================================================
-// INIT
+// CART SYSTEM
 // ============================================================
+let cartItems = [
+  { name:'Paracetamol 500mg', qty:2, price:2.06 },
+  { name:'NORSAN Omega-3 Total', qty:1, price:27.00 },
+  { name:'Cetirizin HEXAL® Drops', qty:1, price:13.19 },
+];
+
+function toggleCart() {
+  const d = document.getElementById('cartDrop');
+  d.classList.toggle('show');
+  if (d.classList.contains('show')) renderCart();
+}
+
+document.addEventListener('click', e => { if (!e.target.closest('.cart-wrap')) document.getElementById('cartDrop')?.classList.remove('show'); });
+
+function renderCart() {
+  const items = document.getElementById('cartItems');
+  const foot = document.getElementById('cartFoot');
+  if (!cartItems.length) {
+    items.innerHTML = '<div class="cart-empty">🛒 Your cart is empty<br><small>Add medicines to get started</small></div>';
+    foot.style.display = 'none';
+    document.getElementById('cartCount').textContent = '0';
+    return;
+  }
+  let total = 0;
+  items.innerHTML = cartItems.map((it,i) => {
+    total += it.price * it.qty;
+    return `<div class="cart-item"><div class="cart-item-icon">💊</div><div style="flex:1"><div class="cart-item-name">${it.name}</div><div class="cart-item-qty">Qty: ${it.qty}</div></div><div class="cart-item-price">€${(it.price*it.qty).toFixed(2)}</div><button class="cart-item-del" onclick="removeCartItem(${i})" aria-label="Remove">✕</button></div>`;
+  }).join('');
+  document.getElementById('cartTotal').textContent = '€' + total.toFixed(2);
+  document.getElementById('cartCount').textContent = cartItems.reduce((a,b) => a + b.qty, 0);
+  foot.style.display = 'block';
+}
+
+function removeCartItem(i) {
+  cartItems.splice(i, 1);
+  renderCart();
+  toast('Item removed from cart', 'orange');
+}
+
+function clearCart() {
+  cartItems = [];
+  renderCart();
+  document.getElementById('cartDrop').classList.remove('show');
+  toast('Cart cleared', 'blue');
+}
+
+function addToCart(name, price) {
+  const ex = cartItems.find(c => c.name === name);
+  if (ex) ex.qty++;
+  else cartItems.push({ name, qty:1, price });
+  document.getElementById('cartCount').textContent = cartItems.reduce((a,b) => a + b.qty, 0);
+  toast(`${name} added to cart!`, 'green');
+}
+
+function openCheckout() {
+  document.getElementById('cartDrop').classList.remove('show');
+  const total = cartItems.reduce((a,b) => a + b.price * b.qty, 0);
+  document.getElementById('payTotalDisp').textContent = '€' + total.toFixed(2);
+  openModal('payModal');
+}
+
+// ============================================================
+// PAYMENT SYSTEM
+// ============================================================
+let activePayTab = 'card';
+
+function setPayTab(btn, type) {
+  document.querySelectorAll('.pay-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activePayTab = type;
+  document.getElementById('cardFields').style.display = type !== 'paypal' ? 'flex' : 'none';
+  document.getElementById('paypalFields').style.display = type === 'paypal' ? 'block' : 'none';
+}
+
+function fmtCard(inp) {
+  let v = inp.value.replace(/\D/g,'').substring(0,16);
+  inp.value = v.replace(/(.{4})/g,'$1 ').trim();
+  const disp = document.getElementById('dispCardNum');
+  const pad = v.padEnd(16,'•');
+  disp.textContent = pad.replace(/(.{4})/g,'$1 ').trim().replace(/[0-9]/g,'•').replace(/•{4}/g,'•••• ').trim();
+  if (v.length >= 4) disp.textContent = v.substring(0,4) + ' •••• •••• ' + (v.length >= 16 ? v.substring(12) : '••••');
+}
+
+function fmtExp(inp) {
+  let v = inp.value.replace(/\D/g,'');
+  if (v.length >= 2) v = v.substring(0,2) + '/' + v.substring(2,4);
+  inp.value = v;
+}
+
+function updateCard() {
+  const n = document.getElementById('payName').value || 'YOUR NAME';
+  const e = document.getElementById('payExp').value || 'MM/YY';
+  document.getElementById('dispName').textContent = n.toUpperCase().substring(0,20);
+  document.getElementById('dispExp').textContent = e;
+}
+
+async function processPayment() {
+  const total = document.getElementById('payTotalDisp').textContent;
+  if (activePayTab !== 'paypal') {
+    const num = document.getElementById('payNum').value.replace(/\s/g,'');
+    const exp = document.getElementById('payExp').value;
+    const cvv = document.getElementById('payCvv').value;
+    const name = document.getElementById('payName').value;
+    if (!name || num.length < 16 || !exp || !cvv) { toast('Please fill all card details', 'red'); return; }
+  }
+  // Simulate processing
+  toast('Processing payment...', 'blue');
+  await new Promise(r => setTimeout(r, 1800));
+
+  // Show success
+  document.getElementById('payFormView').style.display = 'none';
+  document.getElementById('paySuccessView').classList.add('show');
+  document.getElementById('txnId').textContent = 'TXN-' + Math.floor(Math.random()*900000 + 100000);
+  document.getElementById('txnAmt').textContent = total;
+
+  // Clear cart and update
+  cartItems = [];
+  renderCart();
+  toast('Payment successful! 🎉', 'green');
+
+  // Add to orders
+  const oid = '#ORD' + Math.floor(Math.random()*999 + 500);
+  ordersDB.unshift({ id:oid, cust:'PAT001', med:'Online Order', price:total, status:'Completed', payment:'Card' });
+  if (document.getElementById('ordersBody')) renderOrders();
+}
+
+function resetPayModal() {
+  document.getElementById('payFormView').style.display = 'block';
+  document.getElementById('paySuccessView').classList.remove('show');
+  document.getElementById('payName').value = '';
+  document.getElementById('payNum').value = '';
+  document.getElementById('payExp').value = '';
+  document.getElementById('payCvv').value = '';
+  document.getElementById('dispCardNum').textContent = '•••• •••• •••• ••••';
+  document.getElementById('dispName').textContent = 'YOUR NAME';
+  document.getElementById('dispExp').textContent = 'MM/YY';
+}
+
+// ============================================================
+// PAYMENTS TABLE IN ADMIN
+// ============================================================
+function renderPaymentsTable() {
+  const body = document.getElementById('payBody');
+  if (!body) return;
+  const payData = ordersDB.map(o => ({
+    id: o.id, patient: o.cust, amount: o.price,
+    method: o.payment, status: o.status === 'Completed' ? 'Paid' : 'Pending',
+    date: '2024-0' + (Math.floor(Math.random()*9)+1) + '-' + (Math.floor(Math.random()*28)+1).toString().padStart(2,'0')
+  }));
+  body.innerHTML = payData.map(p => {
+    const sc = p.status === 'Paid' ? 'green' : 'orange';
+    const mc = p.method === 'Card' ? '💳' : p.method === 'Cash' ? '💵' : '⏳';
+    return `<tr><td><strong>${p.id}</strong></td><td>${p.patient}</td><td><strong>${p.amount}</strong></td><td>${mc} ${p.method}</td><td><span class="badge badge-${sc}">${p.status}</span></td><td>${p.date}</td><td><button class="ab edit" onclick="openModal('payModal')">💳 Charge</button></td></tr>`;
+  }).join('');
+}
+
+// ============================================================
+// UPDATED renderOrders with Payment columns
+// ============================================================
+
+
 document.addEventListener('DOMContentLoaded', () => {
   initNotifs();
   // keyboard nav for logo/footer links
