@@ -6,12 +6,16 @@ load_dotenv()
 
 BASE_URL = "https://hackfusion-final.onrender.com"
 
-# Helper function to handle requests safely and avoid "NameError: safe_request"
 def safe_request(method, endpoint, **kwargs):
     try:
         url = f"{BASE_URL}{endpoint}"
         response = requests.request(method, url, **kwargs)
+
+        if not response.text:
+            return {"status": "error", "reason": "Empty response"}
+
         return response.json()
+
     except Exception as e:
         return {"status": "error", "reason": str(e)}
 
@@ -32,26 +36,16 @@ def create_order(customer_id, medicine_id, quantity):
         }
     )
 
-def update_stock(medicine_name, delta):
-    return safe_request(
-        "POST",
-        "/update-stock",
-        json={
-            "medicine": medicine_name,
-            "delta": delta
-        }
-    )
-
 def get_customer_history(customer_id):
     return safe_request("GET", f"/customer-history/{customer_id}")
 
-def verify_prescription(customer_id, medicine_id):
+def verify_prescription(customer_id, medicine_identifier):
     return safe_request(
         "POST",
         "/verify-prescription",
         json={
-            "customer_id": customer_id,
-            "medicine_id": medicine_id
+            "customer_id": str(customer_id),
+            "medicine": str(medicine_identifier)
         }
     )
 
@@ -61,5 +55,11 @@ def check_prescription_status(customer_id, medicine_id):
         f"/prescription-status/{customer_id}/{medicine_id}"
     )
 
-# This helps Python find the names during import
-__all__ = ['health_check', 'check_inventory', 'create_order', 'update_stock', 'get_customer_history', 'verify_prescription', 'check_prescription_status']
+__all__ = [
+    'health_check',
+    'check_inventory',
+    'create_order',
+    'get_customer_history',
+    'verify_prescription',
+    'check_prescription_status'
+]
