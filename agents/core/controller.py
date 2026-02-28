@@ -1,6 +1,8 @@
 # agents/core/controller.py
 
 from langsmith import traceable
+from agents.tools.webhook import trigger_admin_alert
+from datetime import datetime
 
 from agents.tools.tools import (
     check_inventory,
@@ -13,6 +15,7 @@ from agents.tools.tools import (
     search_medicines
 )
 
+@traceable(name="Controller-Decision")
 def handle_intent(request, user_input=None):
     
     if not request:
@@ -105,7 +108,27 @@ def handle_intent(request, user_input=None):
                     "code": "prescription_required"
                 }
 
-        return create_order(customer_id, medicine_id, quantity)
+        # 🔥 CREATE ORDER
+        result = create_order(customer_id, medicine_id, quantity)
+
+        # 🔥 TRIGGER WEBHOOK ONLY IF ORDER SUCCESS
+        if result.get("status") == "success":
+
+            order_data = result.get("data", {})
+
+            trigger_admin_alert(
+                event_type="order_created",
+                payload={
+                    "order_id": order_data.get("order_id"),
+                    "customer_id": customer_id,
+                    "medicine": order_data.get("medicine"),
+                    "quantity": order_data.get("quantity"),
+                    "total_price": order_data.get("total_price"),
+                    "date": datetime.utcnow().isoformat()
+                }
+            )
+
+        return result
 
     # ==================================================
     # UPLOAD PRESCRIPTION

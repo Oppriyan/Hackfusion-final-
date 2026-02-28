@@ -30,6 +30,7 @@ client = AzureOpenAI(
     azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
 )
 
+@traceable(name="Intent-Extraction")
 def extract_structured_request(user_input: str) -> StructuredRequest:
 
     if not user_input or not isinstance(user_input, str):
@@ -96,10 +97,9 @@ Return JSON only.
 
     except Exception:
         quantity = None
-
     return StructuredRequest(
-        intent=intent,
-        medicine_name=parsed.get("medicine_name"),
-        quantity=quantity,
-        customer_id=parsed.get("customer_id")
-    )
+    intent=intent,
+    medicine_name=parsed.get("medicine_name"),
+    quantity=quantity,
+    customer_id=parsed.get("customer_id")
+).model_dump()
