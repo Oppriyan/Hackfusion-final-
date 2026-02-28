@@ -1,42 +1,84 @@
 # agents/core/responder.py
-def generate_response(user_input, tool_result, prediction=None):
-    if not isinstance(tool_result, dict): 
-        return "Hello! How can I assist you today?"
 
-    if "response" in tool_result:
-        return tool_result["response"]
+def generate_response(user_input, tool_result, prediction=None):
+
+    if not isinstance(tool_result, dict):
+        return "I couldn’t process that request."
 
     status = tool_result.get("status")
+    code = tool_result.get("code")
     data = tool_result.get("data")
-    
+
+    # =====================================================
+    # 1️⃣ SMALLTALK
+    # =====================================================
     if status == "smalltalk":
-        return "Hello! How can I assist you today?"
+        return "Hello! How can I assist you with your pharmacy needs today?"
 
-    if status == "success" and data:
-        # History
-        if isinstance(data, list) and len(data) > 0 and "purchase_date" in str(data):
-            lines = ["Here are your previous orders:"]
-            for o in data:
-                lines.append(f"- {o.get('medicine')} | Quantity: {o.get('quantity')} | Date: {o.get('purchase_date')}")
-            return "\n".join(lines)
+    # =====================================================
+    # 2️⃣ INVENTORY RESPONSE
+    # =====================================================
+    if status == "success" and isinstance(data, list):
 
-        # Inventory
-        item = data[0] if isinstance(data, list) else data
-        if "stock" in item:
-            return (f"{item.get('name')} is available.\n"
-                    f"Price: {item.get('price')}\n"
-                    f"Stock: {item.get('stock')} units.\n"
-                    f"Prescription Required: {item.get('prescription_required')}")
+        if not data:
+            return "Medicine not found."
 
-        # Order Success
-        if "order_id" in data or "medicine" in data:
-            return f"Your order for {data.get('medicine')} (Quantity: {data.get('quantity')}) has been successfully placed."
+        item = data[0]
 
-    # Error fallbacks for the test suite
-    msg = str(tool_result.get("message", ""))
-    if "Missing required fields" in msg or "fields" in msg:
-        return "Missing required fields"
-    if "not found" in msg.lower() or status == "error":
+        return (
+            f"{item.get('name')} is available.\n"
+            f"Price: €{item.get('price')}\n"
+            f"Stock: {item.get('stock')} units.\n"
+            f"Prescription Required: {item.get('prescription_required')}"
+        )
+
+    # =====================================================
+    # 3️⃣ ORDER SUCCESS
+    # =====================================================
+    if status == "success" and isinstance(data, dict) and data.get("order_id"):
+
+        return (
+            f"Your order has been successfully placed.\n"
+            f"Medicine: {data.get('medicine')}\n"
+            f"Quantity: {data.get('quantity')}\n"
+            f"Total Price: €{data.get('total_price')}"
+        )
+
+    # =====================================================
+    # 4️⃣ HISTORY RESPONSE
+    # =====================================================
+    if status == "success" and isinstance(data, list):
+
+        if not data:
+            return "You have no previous orders."
+
+        response_lines = ["Here are your previous orders:"]
+        for order in data:
+            response_lines.append(
+                f"- {order.get('medicine')} | "
+                f"Quantity: {order.get('quantity')} | "
+                f"Date: {order.get('purchase_date')}"
+            )
+
+        return "\n".join(response_lines)
+
+    # =====================================================
+    # 5️⃣ ERROR HANDLING
+    # =====================================================
+
+    if code == "not_found":
         return "Medicine not found."
 
-    return "Hello! How can I assist you today?"
+    if code == "insufficient_stock":
+        return "Insufficient stock available."
+
+    if code == "prescription_required":
+        return "A valid prescription is required for this medicine."
+
+    if status == "error":
+        return tool_result.get("message", "Something went wrong.")
+
+    # =====================================================
+    # 6️⃣ FALLBACK
+    # =====================================================
+    return "I’m here to help with medicine availability, orders, and prescriptions. Please let me know how I can assist you."

@@ -1,44 +1,86 @@
 # agents/core/controller.py
-from agents.tools.tools import check_inventory, create_order, verify_prescription, get_customer_history
+
+from agents.tools.tools import (
+    check_inventory,
+    create_order,
+    verify_prescription,
+    get_customer_history
+)
+
 
 def handle_intent(request):
-    if not request: return {"status": "error", "response": "Invalid request"}
+
+    if not request:
+        return {"status": "error", "message": "Invalid request"}
 
     intent = request.intent
-    customer_id = "PAT001"
-    query = request.medicine_name
-    qty = request.quantity or 1
+    customer_id = request.customer_id or "PAT001"
+    medicine = request.medicine_name
+    quantity = request.quantity or 1
 
+    # ==================================================
+    # INVENTORY
+    # ==================================================
     if intent == "inventory":
-        if not query: return {"status": "error", "response": "Medicine name required"}
-        return check_inventory(query)
 
+        if not medicine:
+            return {"status": "error", "message": "Medicine name required"}
+
+        return check_inventory(medicine)
+
+    # ==================================================
+    # ORDER FLOW
+    # ==================================================
     if intent == "order":
-        if not query: return {"status": "error", "response": "Medicine name required"}
 
-        # 1. Resolve exact name and prescription status
-        inv = check_inventory(query)
-        if inv.get("status") != "success" or not inv.get("data"):
-            return {"status": "success", "response": "Medicine not found."}
+        if not medicine:
+            return {"status": "error", "message": "Medicine name required"}
 
-        # Handle list or single object
-        med_list = inv.get("data")
-        med_data = med_list[0] if isinstance(med_list, list) else med_list
-        
-        exact_name = med_data.get("name")
-        med_id = med_data.get("medicine_id")
-        needs_presc = med_data.get("prescription_required") == "Yes"
+        quantity = quantity if quantity and quantity > 0 else 1
 
-        # 2. Check Prescription
-        if needs_presc:
-            v = verify_prescription(customer_id, med_id)
-            if v.get("status") != "success":
-                return {"status": "success", "response": "A valid prescription is required for this medicine."}
+        # Step 1 — Check Inventory
+        inventory = check_inventory(medicine)
 
-        # 3. Place Order with EXACT name
-        return create_order(customer_id, exact_name, qty)
+        if inventory.get("status") != "success":
+            return inventory
 
+        data_list = inventory.get("data", [])
+
+        if not data_list:
+            return {"status": "error", "code": "not_found", "message": "Medicine not found"}
+
+        medicine_data = data_list[0]
+
+        medicine_id = medicine_data.get("medicine_id")
+        prescription_required = medicine_data.get("prescription_required") == "Yes"
+
+        # Step 2 — Verify Prescription if Required
+        if prescription_required:
+
+            verify = verify_prescription(customer_id, medicine_id)
+
+            if verify.get("status") != "success":
+                return {
+                    "status": "error",
+                    "code": "prescription_required",
+                    "message": "Valid prescription required"
+                }
+
+        # Step 3 — Create Order
+        order = create_order(customer_id, medicine, quantity)
+
+        return order
+
+    # ==================================================
+    # HISTORY
+    # ==================================================
     if intent == "history":
         return get_customer_history(customer_id)
 
-    return {"status": "smalltalk"}
+    # ==================================================
+    # SMALLTALK
+    # ==================================================
+    if intent == "smalltalk":
+        return {"status": "smalltalk"}
+
+    return {"status": "error", "message": "Unknown intent"}
