@@ -47,21 +47,24 @@ client = AzureOpenAI(
 def extract_structured_request(user_input: str) -> StructuredRequest:
 
     raw = _llm_extract(user_input)
-
     normalized = _normalize_and_validate(raw)
 
     return StructuredRequest(**normalized)
 
 
 # -------------------------------------------------
-# LLM Extraction
+# LLM Extraction (Enterprise Hardened Prompt)
 # -------------------------------------------------
 def _llm_extract(user_input: str) -> dict:
 
     system_prompt = """
-You are a pharmacy intent extraction engine.
+You are a STRICT pharmacy intent extraction engine.
 
-Return ONLY JSON in this format:
+You MUST extract medicine names even if partial.
+If the user says "Paracetamol", extract "Paracetamol".
+Do NOT return null if a medicine name is clearly mentioned.
+
+Return ONLY valid JSON in this exact format:
 
 {
   "intent": "order | inventory | history | update_stock | upload_prescription | smalltalk",
@@ -71,29 +74,40 @@ Return ONLY JSON in this format:
   "customer_id": string or null
 }
 
-Rules:
-- order → requires medicine_name
-- inventory → requires medicine_name
-- history → no medicine required
-- update_stock → requires medicine_name + delta
-- upload_prescription → requires medicine_name
-- greetings → smalltalk
+INTENT RULES:
 
-If unsure, choose smalltalk.
+- Buying, ordering, needing, getting medicine → order
+- Checking availability or price → inventory
+- Asking about past or previous orders → history
+- Increasing or reducing stock → update_stock
+- Mentioning uploading prescription → upload_prescription
+- Greetings or unclear messages → smalltalk
+
+EXTRACTION RULES:
+
+- If medicine mentioned → ALWAYS extract it.
+- If ordering and quantity missing → quantity = 1
+- If quantity provided (even 0 or negative) → extract raw value.
+- Never hallucinate a medicine.
+- If no medicine mentioned → medicine_name = null.
+- If uncertain about intent → smalltalk.
+
 Return ONLY valid JSON.
 """
 
-    response = client.chat.completions.create(
-        model=os.getenv("AZURE_OPENAI_DEPLOYMENT"),
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_input}
-        ],
-        temperature=0
-    )
-
     try:
-        return json.loads(response.choices[0].message.content.strip())
+        response = client.chat.completions.create(
+            model=os.getenv("AZURE_OPENAI_DEPLOYMENT"),
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_input}
+            ],
+            temperature=0
+        )
+
+        content = response.choices[0].message.content.strip()
+        return json.loads(content)
+
     except Exception:
         return {
             "intent": "smalltalk",
@@ -119,18 +133,23 @@ def _normalize_and_validate(data: dict) -> dict:
     # Intent Downgrade Logic
     # -------------------------
 
+    # Order must have medicine
     if intent == "order" and not medicine:
         intent = "smalltalk"
 
+    # Inventory must have medicine
     if intent == "inventory" and not medicine:
         intent = "smalltalk"
 
-    if intent == "update_stock" and not medicine:
+    # Update stock must have medicine and delta
+    if intent == "update_stock" and (not medicine or delta is None):
         intent = "smalltalk"
 
+    # Upload prescription must have medicine
     if intent == "upload_prescription" and not medicine:
         intent = "smalltalk"
 
+    # History should not carry medicine/quantity
     if intent == "history":
         medicine = None
         quantity = None
@@ -163,6 +182,7 @@ def _normalize_intent(intent: Optional[str]) -> str:
 def _sanitize_text(value: Optional[str]) -> Optional[str]:
     if not value:
         return None
+
     value = value.strip()
     return value if value else None
 
@@ -170,11 +190,15 @@ def _sanitize_text(value: Optional[str]) -> Optional[str]:
 def _sanitize_quantity(value: Optional[int]) -> Optional[int]:
     try:
         value = int(value)
+
         if value <= 0:
             return 1
+
         if value > 100:
             return 100
+
         return value
+
     except Exception:
         return 1
 
@@ -182,8 +206,11 @@ def _sanitize_quantity(value: Optional[int]) -> Optional[int]:
 def _sanitize_delta(value: Optional[int]) -> Optional[int]:
     try:
         value = int(value)
+
         if abs(value) > 1000:
             return None
+
         return value
+
     except Exception:
         return None
