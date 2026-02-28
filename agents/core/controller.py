@@ -5,8 +5,7 @@ from agents.tools.tools import (
     create_order,
     verify_prescription,
     get_customer_history,
-    update_stock,
-    upload_prescription
+    update_stock
 )
 
 
@@ -41,7 +40,6 @@ def handle_intent(request):
 
         quantity = quantity if quantity and quantity > 0 else 1
 
-        # Step 1 — Check Inventory
         inventory = check_inventory(medicine)
 
         if inventory.get("status") != "success":
@@ -57,7 +55,6 @@ def handle_intent(request):
         medicine_id = medicine_data.get("medicine_id")
         prescription_required = medicine_data.get("prescription_required") == "Yes"
 
-        # Step 2 — Verify Prescription if Required
         if prescription_required:
 
             verify = verify_prescription(customer_id, medicine_id)
@@ -69,20 +66,13 @@ def handle_intent(request):
                     "message": "Valid prescription required"
                 }
 
-        # Step 3 — Create Order
         return create_order(customer_id, medicine, quantity)
 
     # ==================================================
     # HISTORY
     # ==================================================
     if intent == "history":
-
-        history = get_customer_history(customer_id)
-
-        if history.get("status") != "success":
-            return history
-
-        return history
+        return get_customer_history(customer_id)
 
     # ==================================================
     # UPDATE STOCK
@@ -93,16 +83,6 @@ def handle_intent(request):
             return {"status": "error", "message": "Medicine and stock delta required"}
 
         return update_stock(medicine, delta)
-
-    # ==================================================
-    # UPLOAD PRESCRIPTION
-    # ==================================================
-    if intent == "upload_prescription":
-
-        if not medicine:
-            return {"status": "error", "message": "Medicine name required"}
-
-        return upload_prescription(customer_id, medicine)
 
     # ==================================================
     # SMALLTALK
