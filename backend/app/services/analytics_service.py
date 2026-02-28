@@ -72,3 +72,44 @@ def get_user_metrics(customer_id: str):
             "code": "internal_error",
             "message": "Failed to calculate user metrics"
         }, 500
+        # -------------------------------------------------
+# ADMIN REVENUE METRICS
+# -------------------------------------------------
+def get_admin_revenue():
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("""
+            SELECT 
+                substr(purchase_date, 1, 7) as month,
+                SUM(total_price) as revenue
+            FROM orders
+            GROUP BY month
+            ORDER BY month ASC
+        """)
+
+        rows = cursor.fetchall()
+        conn.close()
+
+        data = [
+            {
+                "month": row["month"],
+                "revenue": round(row["revenue"], 2)
+            }
+            for row in rows
+        ]
+
+        return {
+            "status": "success",
+            "data": data
+        }, 200
+
+    except Exception:
+        conn.close()
+        return {
+            "status": "error",
+            "code": "internal_error",
+            "message": "Failed to calculate revenue"
+        }, 500
