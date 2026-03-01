@@ -91,6 +91,7 @@ Return JSON only.
         print("⚠ Azure extractor failed, using fallback parser.")
         print("Error:", str(e))
 
+<<<<<<< HEAD
     # ==================================================
     # 🔥 FALLBACK RULE-BASED PARSER (DEMO SAFE)
     # ==================================================
@@ -127,3 +128,13 @@ Return JSON only.
 
     # DEFAULT
     return StructuredRequest(intent="smalltalk")
+=======
+    except Exception:
+        quantity = None
+    return StructuredRequest(
+    intent=intent,
+    medicine_name=parsed.get("medicine_name"),
+    quantity=quantity,
+    customer_id=parsed.get("customer_id")
+).model_dump()
+>>>>>>> 9ade7a05e19af9cec6ef936db098a6666ebbf98f

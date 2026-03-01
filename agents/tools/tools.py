@@ -1,6 +1,7 @@
 import os
 import requests
 from dotenv import load_dotenv
+from langsmith import traceable
 
 load_dotenv()
 
@@ -33,6 +34,7 @@ def health_check():
 # INVENTORY
 # ==================================================
 
+@traceable(name="Check-Inventory")
 def check_inventory(medicine_name):
     return safe_request("GET", f"/inventory/{medicine_name}")
 
@@ -61,6 +63,7 @@ def update_stock(medicine, delta, admin_token):
 # ORDER SYSTEM
 # ==================================================
 
+@traceable(name="Create-Order")
 def create_order(customer_id, medicine_id, quantity):
     return safe_request(
         "POST",
@@ -73,6 +76,7 @@ def create_order(customer_id, medicine_id, quantity):
     )
 
 
+@traceable(name="Get-History")
 def get_customer_history(customer_id):
     return safe_request("GET", f"/customer-history/{customer_id}")
 
@@ -98,6 +102,7 @@ def get_order_status(order_id):
 # PRESCRIPTION SYSTEM
 # ==================================================
 
+@traceable(name="Verify-Prescription")
 def verify_prescription(customer_id, medicine_identifier):
     return safe_request(
         "POST",
@@ -109,6 +114,7 @@ def verify_prescription(customer_id, medicine_identifier):
     )
 
 
+@traceable(name="Prescription-Status")
 def check_prescription_status(customer_id, medicine_name):
     return safe_request(
         "POST",
