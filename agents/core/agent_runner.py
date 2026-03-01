@@ -9,21 +9,29 @@ from agents.core.responder import generate_response
 def run_agent(user_input: str):
 
     try:
+        # Step 1: Extract structured intent
         structured = extract_structured_request(user_input)
+        print("🔎 Structured Request:", structured)
 
+        # Step 2: Handle business logic
         backend_result = traced_controller(structured, user_input)
+        print("⚙ Backend Result:", backend_result)
 
+        # Step 3: Generate final response
         final_response = generate_response(user_input, backend_result)
+        print("🧠 Final Response:", final_response)
 
         return {
             "status": "success",
             "response": final_response
         }
 
-    except Exception:
+    except Exception as e:
+        print("🚨 AGENT ERROR:", str(e))
+
         return {
             "status": "success",
-            "response": "Hello! How can I assist you with your pharmacy needs today?"
+            "response": "I'm experiencing a temporary issue. Please try again."
         }
 
 

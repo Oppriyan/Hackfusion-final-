@@ -1,8 +1,26 @@
+import os
 from flask import Flask
 from flask_cors import CORS
 from dotenv import load_dotenv
+from pathlib import Path
 
-from app.models.database import init_db
+# ==================================================
+# FORCE LOAD ROOT .env (Bulletproof)
+# ==================================================
+
+ROOT_PATH = Path(__file__).resolve().parents[2]
+ENV_PATH = ROOT_PATH / ".env"
+
+load_dotenv(dotenv_path=ENV_PATH)
+
+print("AZURE KEY LOADED:", bool(os.getenv("AZURE_OPENAI_API_KEY")))
+print("AZURE KEY:", os.getenv("AZURE_OPENAI_API_KEY"))
+
+# ==================================================
+# IMPORT AFTER ENV LOAD
+# ==================================================
+
+from app.models.database import init_db, get_db
 from app.utils.excel_loader import load_all_data
 
 from app.routes.inventory import inventory_bp
@@ -14,16 +32,16 @@ from app.routes.analytics import analytics_bp
 from app.routes.auth import auth_bp
 
 from werkzeug.security import generate_password_hash
-from app.models.database import get_db
 
+
+# ==================================================
+# APP FACTORY
+# ==================================================
 
 def create_app():
-    load_dotenv()
 
     app = Flask(__name__)
     CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
-
-   
 
     # Initialize database
     init_db()

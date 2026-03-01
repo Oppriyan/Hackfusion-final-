@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-BASE_URL = "https://hackfusion-final.onrender.com"
+BASE_URL = os.getenv("AGENT_BASE_URL", "http://localhost:5000")
 
 
 def safe_request(method, endpoint, **kwargs):

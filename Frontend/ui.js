@@ -1,16 +1,41 @@
 // ============================================================
 // UI CONTROLLER
-// Navigation, Toasts, Modals, Notifications, Search
+// Navigation, Toasts, Modals, Notifications, Search, Auth
 // ============================================================
 
 import { getInventory, getNotifications } from "./state.js";
+import {
+  API_BASE,
+  getToken,
+  getUserRole,
+  setAuth,
+  clearAuth,
+  getUserName,
+  setUserName,
+  clearUserName
+} from "./config.js";
 
 
 // ============================================================
-// PAGE NAVIGATION
+// PAGE NAVIGATION (PROTECTED)
 // ============================================================
 
 export function goTo(page) {
+
+  const protectedPages = ["dashboard", "admin"];
+
+  if (protectedPages.includes(page)) {
+
+    if (!getToken()) {
+      openModal("loginModal");
+      return;
+    }
+
+    if (page === "admin" && getUserRole() !== "admin") {
+      toast("Admin access only", "red");
+      return;
+    }
+  }
 
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
 
@@ -32,7 +57,6 @@ export function goTo(page) {
 
   if (page === "dashboard") import("./dashboard.js").then(m => m.loadDashboardData());
   if (page === "admin") import("./admin.js").then(m => m.loadAdminData());
-  // safety page is static HTML, no JS load needed
 }
 
 window.goTo = goTo;
@@ -89,6 +113,11 @@ export function closeModal(id) {
 window.openModal = openModal;
 window.closeModal = closeModal;
 
+export function overlayClose(e, id) {
+  if (e.target === e.currentTarget) closeModal(id);
+}
+window.overlayClose = overlayClose;
+
 document.addEventListener("keydown", e => {
   if (e.key === "Escape") {
     document.querySelectorAll(".overlay.show").forEach(o => {
@@ -97,6 +126,115 @@ document.addEventListener("keydown", e => {
     });
   }
 });
+
+
+// ============================================================
+// AUTH - LOGIN
+// ============================================================
+
+export async function handleLogin() {
+
+  const email = document.getElementById("liEmail")?.value;
+  const pass = document.getElementById("liPass")?.value;
+
+  if (!email || !pass) {
+    toast("Please fill in all fields", "orange");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password: pass })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Login failed");
+
+    // Store token + role
+    setAuth(data.token, data.role);
+
+    // 🔥 Store user name
+    setUserName(data.name || email.split("@")[0]);
+
+    closeModal("loginModal");
+    toast("Login successful!", "green");
+
+    updateAuthUI();
+
+    if (data.role === "admin") {
+      goTo("admin");
+    } else {
+      goTo("dashboard");
+    }
+
+  } catch (err) {
+    toast(err.message, "red");
+  }
+}
+
+window.handleLogin = handleLogin;
+
+
+// ============================================================
+// LOGOUT
+// ============================================================
+
+export function logout() {
+  clearAuth();
+  clearUserName();
+  updateAuthUI();
+  toast("Logged out successfully", "blue");
+  goTo("home");
+}
+
+window.logout = logout;
+
+
+// ============================================================
+// AUTH UI STATE
+// ============================================================
+
+function updateAuthUI() {
+
+  const authBtn = document.getElementById("authBtn");
+  const adminNav = document.getElementById("nav-admin");
+  const greet = document.getElementById("userGreeting");
+  const dashName = document.getElementById("dashUserName");
+
+  if (!authBtn) return;
+
+  if (getToken()) {
+
+    const name = getUserName() || "User";
+
+    // Navbar greeting
+    if (greet) greet.textContent = `Hi, ${name}`;
+
+    // Dashboard greeting
+    if (dashName) dashName.textContent = name;
+
+    authBtn.textContent = "Logout";
+    authBtn.onclick = logout;
+
+    if (getUserRole() !== "admin" && adminNav) {
+      adminNav.style.display = "none";
+    }
+
+  } else {
+
+    if (greet) greet.textContent = "";
+    if (dashName) dashName.textContent = "User";
+
+    authBtn.textContent = "Login";
+    authBtn.onclick = () => openModal("loginModal");
+
+    if (adminNav) {
+      adminNav.style.display = "";
+    }
+  }
+}
 
 
 // ============================================================
@@ -123,70 +261,6 @@ export function initNotifications() {
     : `<div style="padding:1rem;text-align:center;color:#94a3b8">No new notifications</div>`;
 }
 
-export function toggleNotif() {
-  const d = document.getElementById("notifDrop");
-  if (!d) return;
-  d.classList.toggle("show");
-}
-
-window.toggleNotif = toggleNotif;
-
-
-// ============================================================
-// HERO SEARCH (LIVE FROM INVENTORY)
-// ============================================================
-
-export function initSearch() {
-
-  const input = document.getElementById("heroSearch");
-  const drop = document.getElementById("searchDrop");
-
-  if (!input || !drop) return;
-
-  input.addEventListener("input", function () {
-
-    const q = this.value.trim().toLowerCase();
-
-    if (q.length < 2) {
-      drop.classList.remove("show");
-      return;
-    }
-
-    const results = getInventory().filter(m =>
-      m.name.toLowerCase().includes(q)
-    );
-
-    drop.innerHTML = results.length
-      ? results.slice(0, 6).map(m => `
-        <div class="sug-item"
-          onclick="window.selectMedicine('${m.id}','${m.name}','${m.stock}')">
-          💊 <span style="flex:1">${m.name}</span>
-          <span class="badge">${m.stock} left</span>
-        </div>
-      `).join("")
-      : `<div class="sug-item">No results</div>`;
-
-    drop.classList.add("show");
-  });
-
-  document.addEventListener("click", e => {
-    if (!e.target.closest(".search-hero")) {
-      drop.classList.remove("show");
-    }
-  });
-}
-
-
-// ============================================================
-// MEDICINE SELECT
-// ============================================================
-
-window.selectMedicine = function (id, name, stock) {
-  document.getElementById("heroSearch").value = name;
-  document.getElementById("searchDrop").classList.remove("show");
-  toast(`${name} — ${stock} in stock`, stock > 10 ? "green" : "orange");
-};
-
 
 // ============================================================
 // INIT UI
@@ -194,96 +268,5 @@ window.selectMedicine = function (id, name, stock) {
 
 export function initUI() {
   initNotifications();
-  initSearch();
+  updateAuthUI(); // 🔥 restore username + role after refresh
 }
-
-// ============================================================
-// ADDITIONAL UI HELPERS (exposed for inline HTML handlers)
-// ============================================================
-
-export function overlayClose(e, id) {
-  if (e.target === e.currentTarget) closeModal(id);
-}
-window.overlayClose = overlayClose;
-
-export function handleLogin() {
-  const email = document.getElementById("liEmail")?.value;
-  const pass = document.getElementById("liPass")?.value;
-  if (!email || !pass) { toast("Please fill in all fields", "orange"); return; }
-  toast("Login successful! Welcome back.", "green");
-  closeModal("loginModal");
-}
-window.handleLogin = handleLogin;
-
-export function addOrder() {
-  const id = document.getElementById("aoId")?.value;
-  const cust = document.getElementById("aoCust")?.value;
-  const med = document.getElementById("aoMed")?.value;
-  if (!id || !cust || !med) { toast("Please fill in all required fields", "orange"); return; }
-  toast("Order added successfully!", "green");
-  closeModal("addOrderModal");
-}
-window.addOrder = addOrder;
-
-export function addCustomer() {
-  const name = document.getElementById("acName")?.value;
-  const email = document.getElementById("acEmail")?.value;
-  if (!name || !email) { toast("Please fill in required fields", "orange"); return; }
-  toast("Customer added!", "green");
-  closeModal("addCustModal");
-}
-window.addCustomer = addCustomer;
-
-export function addMedicine() {
-  const name = document.getElementById("amName")?.value;
-  if (!name) { toast("Please enter medicine name", "orange"); return; }
-  toast("Medicine added to inventory!", "green");
-  closeModal("addMedModal");
-}
-window.addMedicine = addMedicine;
-
-export function doSearch() {
-  const q = document.getElementById("heroSearch")?.value?.trim().toLowerCase();
-  if (!q) return;
-  const inv = getInventory();
-  const found = inv.find(m => m.name.toLowerCase().includes(q));
-  if (found) toast(`${found.name} — ${found.stock} in stock`, found.stock > 10 ? "green" : "orange");
-  else toast("No results found for: " + q, "orange");
-}
-window.doSearch = doSearch;
-
-export function fillSearch(val) {
-  const input = document.getElementById("heroSearch");
-  if (input) { input.value = val; doSearch(); }
-}
-window.fillSearch = fillSearch;
-
-export function showAdminSec(sec, btn) {
-  document.querySelectorAll(".asec").forEach(s => s.classList.remove("show"));
-  document.querySelectorAll(".sb-btn").forEach(b => { b.classList.remove("active"); b.setAttribute("aria-pressed","false"); });
-  const el = document.getElementById("asec-" + sec);
-  if (el) el.classList.add("show");
-  if (btn) { btn.classList.add("active"); btn.setAttribute("aria-pressed","true"); }
-}
-window.showAdminSec = showAdminSec;
-
-export function startWebCall() {
-  openModal("callModal");
-}
-window.startWebCall = startWebCall;
-
-export function filterOrders() {}
-export function filterCustomers() {}
-export function updatePeriod() {}
-window.filterOrders = filterOrders;
-window.filterCustomers = filterCustomers;
-window.updatePeriod = updatePeriod;
-
-export function clearNotifs() {
-  const list = document.getElementById("notifList");
-  const dot = document.getElementById("notifDot");
-  if (list) list.innerHTML = '<div style="padding:1rem;text-align:center;color:#94a3b8">No new notifications</div>';
-  if (dot) dot.textContent = "0";
-  document.getElementById("notifDrop")?.classList.remove("show");
-}
-window.clearNotifs = clearNotifs;

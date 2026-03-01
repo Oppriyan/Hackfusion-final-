@@ -42,7 +42,8 @@
       </div>
       <button class="btn-safety" aria-label="Safety & Compliance">🛡️ <span>Safety</span></button>
       <button class="nav-icon-btn" aria-label="Cart (3 items)">🛒<span class="badge-dot">3</span></button>
-      <button class="btn-login" onclick="openModal('loginModal')" aria-label="Login">Login</button>
+      <div id="userGreeting" style="font-weight:600;margin-right:10px;"></div>
+<button class="btn-login" id="authBtn" aria-label="Authentication Button">Login</button>
     </div>
   </div>
 </nav>
@@ -255,14 +256,19 @@
   </footer>
 </div>
 
-<!-- ============================================================
-     AI + ADMIN DASHBOARD PAGE
-============================================================ -->
+
+<!-- ========================================================= -->
+<!-- AI + USER DASHBOARD PAGE -->
+<!-- ========================================================= -->
+
 <div id="page-dashboard" class="page">
+
   <div class="dash-layout">
 
-    <!-- LEFT: AI CHAT (wider — main feature) -->
+    <!-- ================= LEFT: AI PANEL ================= -->
     <aside class="ai-panel" aria-label="AI Pharmacy Assistant">
+
+      <!-- Header -->
       <div class="ai-ph">
         <div class="ai-ph-top">
           <div>
@@ -275,185 +281,134 @@
               <span class="dot dot-green"></span>Rx Engine Live
             </div>
           </div>
-          <button class="webcall-btn" onclick="startWebCall()" aria-label="Start Web Voice Call" title="Start Voice Call">📞</button>
-        </div>
-        <!-- Smart Search -->
-        <div class="ai-search-wrap" style="margin-top:.75rem">
-          <span class="ai-search-icon">🔍</span>
-          <input type="text" class="ai-search-input" id="aiSearchInput" placeholder="Search medicine (typos OK — e.g. paracetmol, ibuproffin...)..." autocomplete="off" aria-label="Smart medicine search">
-          <div class="ai-search-drop" id="aiSearchDrop"></div>
-        </div>
-        <!-- Quick Actions -->
-        <div class="ai-quick-actions">
-          <button class="ai-qa-btn" onclick="document.getElementById('aiInput').value='Find cheaper alternatives for Lipitor';sendAiMessage()">💰 Find Generics</button>
-          <button class="ai-qa-btn" onclick="showAdherenceCalendar()">📅 My Adherence</button>
-          <button class="ai-qa-btn" onclick="showFamilyProfiles()">👨‍👩‍👧 Family</button>
-          <button class="ai-qa-btn" onclick="document.getElementById('aiInput').value='Check my refills';sendAiMessage()">🔄 Refills</button>
+          <button class="webcall-btn" onclick="startWebCall()" aria-label="Start Web Voice Call">
+            📞
+          </button>
         </div>
       </div>
 
+      <!-- Messages -->
       <div class="ai-msgs" id="aiMsgs" aria-live="polite"></div>
 
+      <!-- Input -->
       <div class="ai-input-area">
+
         <div class="rx-banner" id="rxBanner" role="alert">
           <span class="ri">⚠️</span>
-          <div><strong>Prescription Required</strong><small>This medicine needs a valid prescription to proceed.</small></div>
-          <button class="rx-upload-btn" onclick="openModal('rxModal')">📄 Upload Prescription</button>
+          <div>
+            <strong>Prescription Required</strong>
+            <small>This medicine needs a valid prescription.</small>
+          </div>
+          <button class="rx-upload-btn" onclick="openModal('rxModal')">
+            📄 Upload
+          </button>
         </div>
+
         <div class="ai-input-row">
-          <input type="text" class="ai-ti" id="aiInput" placeholder="Order meds, find generics, check interactions..." aria-label="Type your medication request" onkeydown="if(event.key==='Enter')sendAiMessage()">
-          <button class="ai-send" onclick="sendAiMessage()" aria-label="Send">Send</button>
+          <input 
+            type="text"
+            class="ai-ti"
+            id="aiInput"
+            placeholder="Order meds, find generics, check interactions..."
+          >
+          <button class="ai-send" onclick="sendAiMessage()" aria-label="Send">
+            Send
+          </button>
         </div>
+
       </div>
+
     </aside>
 
-    <!-- RIGHT: USER DASHBOARD -->
-    <main class="admin-r" aria-label="User Dashboard">
+
+    <!-- ================= RIGHT: USER DASHBOARD ================= -->
+    <div class="admin-r">
+
+      <!-- Header -->
       <div class="dash-header">
         <div>
-          <h1>👤 User Dashboard</h1>
-          <p>Your prescriptions, orders, medicines & health summary</p>
+          <h1>User Dashboard</h1>
+          <p>Your prescriptions, orders & health summary</p>
         </div>
-        <div style="display:flex;gap:.875rem;align-items:center">
-          <div class="user-greeting-badge"><span class="dot dot-green"></span>Welcome, Patient</div>
+        <div class="user-greeting-badge">
+          🟢 Welcome, Clerk
         </div>
       </div>
 
-      <!-- USER METRICS -->
+      <!-- Metrics -->
       <div class="metrics">
-        <div class="mcard"><div class="micon" style="background:#ede9fe">💊</div><div><div class="mval" id="uMetOrders">0</div><div class="mlbl">My Orders</div><div class="mch neu">All time</div></div></div>
-        <div class="mcard"><div class="micon" style="background:#d1fae5">📄</div><div><div class="mval" id="uMetRx">0</div><div class="mlbl">Prescriptions</div><div class="mch neu">Uploaded</div></div></div>
-        <div class="mcard"><div class="micon" style="background:#fef3c7">🔔</div><div><div class="mval" id="uMetRefills">2</div><div class="mlbl">Refill Due</div><div class="mch neg">▼ Action needed</div></div></div>
-        <div class="mcard"><div class="micon" style="background:#fee2e2">⚠️</div><div><div class="mval" id="uMetAlerts">1</div><div class="mlbl">Drug Alerts</div><div class="mch neg">Review now</div></div></div>
+
+        <div class="mcard">
+          <div class="micon ord">💊</div>
+          <div>
+            <div class="mval">0</div>
+            <div class="mlbl">My Orders</div>
+          </div>
+        </div>
+
+        <div class="mcard">
+          <div class="micon al">📄</div>
+          <div>
+            <div class="mval">0</div>
+            <div class="mlbl">Prescriptions</div>
+          </div>
+        </div>
+
+        <div class="mcard">
+          <div class="micon rev">₹</div>
+          <div>
+            <div class="mval">₹0</div>
+            <div class="mlbl">Total Spent</div>
+          </div>
+        </div>
+
+        <div class="mcard">
+          <div class="micon bl">⚠️</div>
+          <div>
+            <div class="mval">0</div>
+            <div class="mlbl">Alerts</div>
+          </div>
+        </div>
+
       </div>
 
-      <!-- REFILL REMINDERS + AVAILABLE MEDICINES -->
-      <div class="charts-row">
-        <!-- Refill Reminders -->
-        <div class="tcard">
-          <div class="tcard-head">
-            <h3>🔄 Refill Reminders</h3>
-            <span class="badge badge-orange">2 Due Soon</span>
-          </div>
-          <div class="ud-refill-list" id="udRefillList">
-            <div class="ud-refill-item urgent">
-              <div class="ud-refill-icon">💊</div>
-              <div class="ud-refill-info">
-                <strong>Metformin 850mg</strong>
-                <span>Last ordered 28 days ago · 30-day supply</span>
-              </div>
-              <button class="ud-reorder-btn" onclick="document.getElementById('aiInput').value='Order Metformin 850mg';document.getElementById('aiInput').focus()">Reorder</button>
-            </div>
-            <div class="ud-refill-item urgent">
-              <div class="ud-refill-icon">💊</div>
-              <div class="ud-refill-info">
-                <strong>Lisinopril 10mg</strong>
-                <span>Last ordered 26 days ago · 28-day supply</span>
-              </div>
-              <button class="ud-reorder-btn" onclick="document.getElementById('aiInput').value='Order Lisinopril 10mg';document.getElementById('aiInput').focus()">Reorder</button>
-            </div>
-            <div class="ud-refill-item">
-              <div class="ud-refill-icon">💊</div>
-              <div class="ud-refill-info">
-                <strong>Cetirizine 10mg</strong>
-                <span>Last ordered 18 days ago · 30-day supply</span>
-              </div>
-              <button class="ud-reorder-btn" style="background:var(--g5);color:var(--g3)">12 days left</button>
-            </div>
-          </div>
+      <!-- Orders Table -->
+      <div class="tcard">
+        <div class="tcard-head">
+          <h3>Recent Orders</h3>
         </div>
-
-        <!-- Drug Interaction Alert -->
-        <div class="tcard">
-          <div class="tcard-head">
-            <h3>⚠️ Drug Interaction Alert</h3>
-            <span class="badge badge-red">1 Active</span>
-          </div>
-          <div style="padding:1rem;display:flex;flex-direction:column;gap:.75rem">
-            <div class="ud-alert-card danger">
-              <div style="font-size:1.1rem">🚨</div>
-              <div>
-                <strong>Aspirin + Warfarin</strong>
-                <p>High bleeding risk. Do not take together without doctor supervision.</p>
-                <button class="ud-alert-btn" onclick="switchChatTab('drug');toggleChat()">Check in Drug Checker →</button>
-              </div>
-            </div>
-            <div class="ud-alert-card warning">
-              <div style="font-size:1.1rem">⚠️</div>
-              <div>
-                <strong>Ibuprofen + Empty Stomach</strong>
-                <p>Always take with food or milk to prevent gastric irritation.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- MY ORDERS + AVAILABLE MEDICINES -->
-      <div class="bot-row">
-        <!-- My Orders -->
-        <div class="tcard">
-          <div class="tcard-head">
-            <h3>📦 My Orders</h3>
-            <span class="badge badge-blue" id="uOrderCount">Loading...</span>
-          </div>
-          <div style="overflow-x:auto">
-            <table class="tbl" aria-label="My orders">
-              <thead><tr><th>Order ID</th><th>Medicine</th><th>Qty</th><th>Status</th><th>Date</th></tr></thead>
-              <tbody id="uOrdersBody">
-                <tr><td colspan="5" style="text-align:center;color:var(--g4);padding:2rem">Place an order using the AI assistant on the left →</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- My Prescriptions + Available Stock -->
-        <div class="side-cards">
-          <div class="card" style="padding:1.1rem">
-            <h3 style="font-size:.9rem;margin-bottom:.875rem;color:var(--b1)">📄 My Prescriptions</h3>
-            <div id="uPrescriptions">
-              <div class="ud-rx-item verified">
-                <span>✅</span>
-                <div>
-                  <strong>Amoxicillin 500mg</strong>
-                  <small>Verified · Expires Dec 2025</small>
-                </div>
-              </div>
-              <div class="ud-rx-item pending">
-                <span>⏳</span>
-                <div>
-                  <strong>Tramadol 50mg</strong>
-                  <small>Pending verification</small>
-                </div>
-              </div>
-              <button class="ud-upload-rx-btn" onclick="openModal('rxModal')">📄 Upload New Prescription</button>
-            </div>
-          </div>
-          <div class="chart-card">
-            <div class="cc-head"><h3>💊 Medicine Availability</h3><span class="badge badge-blue">Live</span></div>
-            <div style="position:relative;height:180px"><canvas id="dStockChart" aria-label="Stock donut chart"></canvas></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- AVAILABLE MEDICINES TABLE -->
-      <div class="tcard" style="margin-top:.25rem">
-        <div class="tcard-head"><h3>🏪 Available Medicines</h3><span class="badge badge-green">In Stock</span></div>
-        <div style="overflow-x:auto">
-          <table class="tbl" aria-label="Available medicines">
-            <thead><tr><th>Medicine</th><th>Available Stock</th><th>Status</th><th>Category</th><th>Rx Required</th></tr></thead>
-            <tbody id="dStockBody"></tbody>
+        <div class="tbl-wrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Medicine</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTable">
+              <tr>
+                <td colspan="4">No orders yet</td>
+              </tr>
+            </tbody>
           </table>
         </div>
       </div>
-    </main>
-  </div>
-</div>
 
-<!-- ============================================================
-     ADMIN PANEL PAGE
-============================================================ -->
-<div id="page-admin" class="page">
+    </div>
+    <!-- END RIGHT PANEL -->
+
+  </div>
+  <!-- END dash-layout -->
+
+</div>
+<!-- END page-dashboard -->
+
+<!-- ========================================================= -->
+<!-- ADMIN PAGE -->
+<!-- ========================================================= -->
+div id="page-admin" class="page">
   <div class="admin-layout">
 
     <!-- SIDEBAR -->
@@ -463,6 +418,7 @@
       <button class="sb-btn" onclick="showAdminSec('customers',this)" aria-pressed="false"><span>👥</span>Customers</button>
       <button class="sb-btn" onclick="showAdminSec('inventory',this)" aria-pressed="false"><span>💊</span>Inventory</button>
       <button class="sb-btn" onclick="showAdminSec('analytics',this)" aria-pressed="false"><span>📈</span>Analytics</button>
+      <button class="sb-btn" onclick="showAdminSec('payments',this)" aria-pressed="false"><span>💳</span>Payments</button>
       <div class="sb-div"></div>
       <div class="sb-qs">
         <div class="sq-title">Quick Stats</div>
@@ -504,7 +460,7 @@
       <section id="asec-orders" class="asec" aria-labelledby="asec-ord-title">
         <div class="asec-title-row"><div><h1 id="asec-ord-title">Orders Management</h1><p class="asec-sub">View, manage and add orders</p></div><button class="btn-primary btn-sm" onclick="openModal('addOrderModal')">➕ Add Order</button></div>
         <div class="filter-row"><input type="search" class="form-input" id="ordSearch" placeholder="Search orders..." style="max-width:280px" oninput="filterOrders()" aria-label="Search orders"><select class="form-input" style="width:140px" onchange="filterOrders()" id="ordStatusFilter" aria-label="Filter by status"><option value="">All Status</option><option>Completed</option><option>In Progress</option><option>Pending</option></select></div>
-        <div class="tbl-wrap"><table class="tbl" aria-label="Orders"><thead><tr><th>Order ID</th><th>Customer</th><th>Medicine</th><th>Price</th><th>Status</th><th>Payment</th><th>Actions</th></tr></thead><tbody id="ordersBody"></tbody></table></div>
+        <div class="tbl-wrap"><table class="tbl" aria-label="Orders"><thead><tr><th>Order ID</th><th>Customer</th><th>Medicine</th><th>Price</th><th>Status</th><th>Payment Method</th><th>Payment Status</th><th>Actions</th></tr></thead><tbody id="ordersBody"></tbody></table></div>
       </section>
 
       <!-- CUSTOMERS -->
@@ -519,6 +475,18 @@
         <div class="asec-title-row"><div><h1 id="asec-inv-title">Inventory Management</h1><p class="asec-sub">Track stock levels and manage medicines</p></div><button class="btn-primary btn-sm" onclick="openModal('addMedModal')">➕ Add Medicine</button></div>
         <div class="inv-alerts" id="invAlerts" aria-live="polite"></div>
         <div class="tbl-wrap"><table class="tbl" aria-label="Inventory"><thead><tr><th>Medicine</th><th>Category</th><th>Stock</th><th>Status</th><th>Price</th><th>Rx Required</th><th>Actions</th></tr></thead><tbody id="invBody"></tbody></table></div>
+      </section>
+
+      <!-- PAYMENTS -->
+      <section id="asec-payments" class="asec" aria-labelledby="asec-pay-title">
+        <div class="asec-title-row"><div><h1 id="asec-pay-title">Payment Center</h1><p class="asec-sub">Manage transactions and process payments securely</p></div><button class="btn-primary btn-sm" onclick="openModal('payModal')">💳 New Payment</button></div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.875rem">
+          <div class="mcard"><div class="micon rev">💰</div><div><div class="mval">€42,180</div><div class="mlbl">Total Collected</div><div class="mch pos">▲ 6% this month</div></div></div>
+          <div class="mcard"><div class="micon ord">💳</div><div><div class="mval">28</div><div class="mlbl">Pending Payments</div><div class="mch neg">▼ Needs attention</div></div></div>
+          <div class="mcard"><div class="micon al">🔄</div><div><div class="mval">€1,240</div><div class="mlbl">Refunds Issued</div><div class="mch neu">This month</div></div></div>
+          <div class="mcard"><div class="micon bl">✅</div><div><div class="mval">98.2%</div><div class="mlbl">Success Rate</div><div class="mch pos">▲ Great</div></div></div>
+        </div>
+        <div class="tbl-wrap"><table class="tbl" aria-label="Payments"><thead><tr><th>Order ID</th><th>Patient</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th><th>Action</th></tr></thead><tbody id="payBody"></tbody></table></div>
       </section>
 
       <!-- ANALYTICS -->
@@ -911,4 +879,7 @@
   </div>
 </div>
 
-<script type="module" src="main.js"></script>
+<script type="module" src="./main.js"></script>
+</body>
+</body>
+</script>
