@@ -5,6 +5,7 @@ from app.services.inventory_service import (
     get_all_medicines,
     search_medicines
 )
+from app.utils.auth_utils import require_role
 
 inventory_bp = Blueprint("inventory", __name__)
 
@@ -68,21 +69,12 @@ def inventory(medicine):
 
 
 # -------------------------------------------------
-# UPDATE STOCK (ADMIN PROTECTED)
+# UPDATE STOCK (ADMIN PROTECTED - JWT BASED)
 # -------------------------------------------------
 @inventory_bp.route("/update-stock", methods=["POST"])
+@require_role("admin")
 def update_stock_route():
     try:
-        # Simple Admin Protection (Header Based)
-        admin_token = request.headers.get("X-ADMIN-TOKEN")
-
-        if admin_token != "supersecret":
-            return jsonify({
-                "status": "error",
-                "code": "unauthorized",
-                "message": "Admin access required"
-            }), 403
-
         data = request.get_json()
 
         if not data:

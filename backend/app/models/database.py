@@ -58,6 +58,20 @@ def init_db():
     )
     """)
 
+        # -------------------------------------------------
+    # USERS TABLE (AUTH SYSTEM)
+    # -------------------------------------------------
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        role TEXT NOT NULL CHECK(role IN ('admin', 'user')),
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+
     # -------------------------------------------------
     # ORDERS TABLE
     # -------------------------------------------------
