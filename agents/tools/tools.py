@@ -8,6 +8,10 @@ load_dotenv()
 BASE_URL = os.getenv("AGENT_BASE_URL", "http://localhost:5000")
 
 
+
+
+
+
 def safe_request(method, endpoint, **kwargs):
     try:
         url = f"{BASE_URL}{endpoint}"

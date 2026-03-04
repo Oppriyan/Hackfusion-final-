@@ -24,6 +24,7 @@ client = AzureOpenAI(
     azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
 )
 
+
 @traceable(name="Intent-Extraction")
 def extract_structured_request(user_input: str) -> StructuredRequest:
 
@@ -33,29 +34,20 @@ def extract_structured_request(user_input: str) -> StructuredRequest:
     user_input_lower = user_input.lower()
 
     system_prompt = """
-You are a strict pharmacy intent extractor.
+You are a pharmacy intent extractor.
 
-Return ONLY valid JSON in this format:
+Return ONLY JSON:
 
 {
-  "intent": "order | inventory | history | upload_prescription | smalltalk",
-  "medicine_name": string or null,
-  "quantity": integer or null,
-  "customer_id": string or null
+"intent": "order | inventory | history | upload_prescription | smalltalk",
+"medicine_name": string or null,
+"quantity": integer or null,
+"customer_id": string or null
 }
-
-CRITICAL RULES:
-- Preserve numeric values EXACTLY as written.
-- Do NOT auto-correct quantity.
-- Do NOT invent missing numbers.
-Return JSON only.
 """
 
-    # ==================================================
-    # TRY AZURE LLM FIRST
-    # ==================================================
-
     try:
+
         response = client.chat.completions.create(
             model=os.getenv("AZURE_OPENAI_DEPLOYMENT"),
             messages=[
@@ -66,6 +58,7 @@ Return JSON only.
         )
 
         content = response.choices[0].message.content.strip()
+
         parsed = json.loads(content)
 
         intent = parsed.get("intent", "smalltalk")
@@ -76,7 +69,7 @@ Return JSON only.
         quantity = parsed.get("quantity")
 
         try:
-            quantity = int(quantity) if quantity is not None else None
+            quantity = int(quantity) if quantity else None
         except Exception:
             quantity = None
 
@@ -88,53 +81,38 @@ Return JSON only.
         )
 
     except Exception as e:
-        print("⚠ Azure extractor failed, using fallback parser.")
-        print("Error:", str(e))
 
-<<<<<<< HEAD
-    # ==================================================
-    # 🔥 FALLBACK RULE-BASED PARSER (DEMO SAFE)
-    # ==================================================
+        print("⚠ Azure extractor failed. Using fallback parser.")
+        print(str(e))
 
-    # ORDER: order 2 paracetamol
-    order_match = re.search(r"order\s+(-?\d+)\s+([a-zA-Z\s]+)", user_input_lower)
-    if order_match:
-        quantity = int(order_match.group(1))
-        medicine = order_match.group(2).strip()
-        return StructuredRequest(
-            intent="order",
-            medicine_name=medicine,
-            quantity=quantity,
-            customer_id=None
-        )
+        # --------------------------------------------------
+        # FALLBACK RULE PARSER
+        # --------------------------------------------------
 
-    # INVENTORY
-    if "inventory" in user_input_lower:
-        medicine = user_input_lower.replace("check inventory", "").strip()
-        return StructuredRequest(
-            intent="inventory",
-            medicine_name=medicine,
-            quantity=None,
-            customer_id=None
-        )
+        order_match = re.search(r"order\s+(\d+)\s+([a-zA-Z\s]+)", user_input_lower)
 
-    # HISTORY
-    if "history" in user_input_lower:
-        return StructuredRequest(intent="history")
+        if order_match:
+            return StructuredRequest(
+                intent="order",
+                medicine_name=order_match.group(2).strip(),
+                quantity=int(order_match.group(1)),
+                customer_id=None
+            )
 
-    # UPLOAD PRESCRIPTION
-    if "upload" in user_input_lower:
-        return StructuredRequest(intent="upload_prescription")
+        if "inventory" in user_input_lower or "stock" in user_input_lower:
+            medicine = re.sub(r"(check|inventory|stock|of)", "", user_input_lower).strip()
 
-    # DEFAULT
-    return StructuredRequest(intent="smalltalk")
-=======
-    except Exception:
-        quantity = None
-    return StructuredRequest(
-    intent=intent,
-    medicine_name=parsed.get("medicine_name"),
-    quantity=quantity,
-    customer_id=parsed.get("customer_id")
-).model_dump()
->>>>>>> 9ade7a05e19af9cec6ef936db098a6666ebbf98f
+            return StructuredRequest(
+                intent="inventory",
+                medicine_name=medicine,
+                quantity=None,
+                customer_id=None
+            )
+
+        if "history" in user_input_lower:
+            return StructuredRequest(intent="history")
+
+        if "upload" in user_input_lower:
+            return StructuredRequest(intent="upload_prescription")
+
+        return StructuredRequest(intent="smalltalk")
