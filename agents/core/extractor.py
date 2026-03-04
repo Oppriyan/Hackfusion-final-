@@ -28,7 +28,17 @@ client = AzureOpenAI(
 @traceable(name="Intent-Extraction")
 def extract_structured_request(user_input: str) -> StructuredRequest:
 
+    # --------------------------------------------------
+    # INPUT SANITIZATION
+    # --------------------------------------------------
+
     if not user_input or not isinstance(user_input, str):
+        return StructuredRequest(intent="smalltalk")
+
+    user_input = user_input.strip()
+
+    # Prevent extremely long prompts breaking system
+    if len(user_input) > 200:
         return StructuredRequest(intent="smalltalk")
 
     user_input_lower = user_input.lower()
@@ -89,18 +99,31 @@ Return ONLY JSON:
         # FALLBACK RULE PARSER
         # --------------------------------------------------
 
+        # ORDER: order 2 paracetamol
         order_match = re.search(r"order\s+(\d+)\s+([a-zA-Z\s]+)", user_input_lower)
 
         if order_match:
+
+            medicine = order_match.group(2).strip()
+            medicine = medicine.replace(".", "").replace(",", "")
+
             return StructuredRequest(
                 intent="order",
-                medicine_name=order_match.group(2).strip(),
+                medicine_name=medicine,
                 quantity=int(order_match.group(1)),
                 customer_id=None
             )
 
+        # INVENTORY / STOCK
         if "inventory" in user_input_lower or "stock" in user_input_lower:
-            medicine = re.sub(r"(check|inventory|stock|of)", "", user_input_lower).strip()
+
+            medicine = re.sub(
+                r"(check|inventory|stock|of)",
+                "",
+                user_input_lower
+            ).strip()
+
+            medicine = medicine.replace(".", "").replace(",", "")
 
             return StructuredRequest(
                 intent="inventory",
@@ -109,9 +132,11 @@ Return ONLY JSON:
                 customer_id=None
             )
 
+        # HISTORY
         if "history" in user_input_lower:
             return StructuredRequest(intent="history")
 
+        # UPLOAD PRESCRIPTION
         if "upload" in user_input_lower:
             return StructuredRequest(intent="upload_prescription")
 

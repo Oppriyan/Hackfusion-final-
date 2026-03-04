@@ -3,6 +3,7 @@
 from langsmith import traceable
 from datetime import datetime
 from agents.tools.webhook import trigger_admin_alert
+from agents.utils.safe_execute import safe_execute
 
 from agents.tools.tools import (
     check_inventory,
@@ -14,7 +15,6 @@ from agents.tools.tools import (
     get_order_status,
     search_medicines
 )
-
 
 DEFAULT_CUSTOMER = "PAT001"
 
@@ -41,22 +41,24 @@ def handle_intent(request, user_input=None):
         if "cancel order" in user_input_lower:
             try:
                 order_id = int(user_input_lower.split("cancel order")[1].strip())
-                return cancel_order(order_id)
+                return safe_execute(cancel_order, order_id)
             except Exception:
                 return {"status": "error", "message": "Invalid order ID"}
 
         if "order status" in user_input_lower:
             try:
                 order_id = int(user_input_lower.split("order status")[1].strip())
-                return get_order_status(order_id)
+                return safe_execute(get_order_status, order_id)
             except Exception:
                 return {"status": "error", "message": "Invalid order ID"}
 
         if "search" in user_input_lower:
             query = user_input_lower.replace("search", "").strip()
+
             if not query:
                 return {"status": "error", "message": "Invalid search query"}
-            return search_medicines(query)
+
+            return safe_execute(search_medicines, query)
 
         # --------------------------------------------------
         # INVENTORY
@@ -67,7 +69,7 @@ def handle_intent(request, user_input=None):
             if not medicine:
                 return {"status": "error", "code": "missing_medicine"}
 
-            return check_inventory(medicine)
+            return safe_execute(check_inventory, medicine)
 
         # --------------------------------------------------
         # ORDER
@@ -85,7 +87,7 @@ def handle_intent(request, user_input=None):
                     "message": "Quantity must be greater than 0"
                 }
 
-            inventory = check_inventory(medicine)
+            inventory = safe_execute(check_inventory, medicine)
 
             if inventory.get("status") != "success":
                 return inventory
@@ -100,13 +102,11 @@ def handle_intent(request, user_input=None):
             medicine_id = item.get("medicine_id")
             prescription_required = item.get("prescription_required") == "Yes"
 
-            # ---------------------------
-            # Prescription Check
-            # ---------------------------
-
+            # Prescription check
             if prescription_required:
 
-                status_check = check_prescription_status(
+                status_check = safe_execute(
+                    check_prescription_status,
                     customer_id,
                     item.get("name")
                 )
@@ -117,27 +117,35 @@ def handle_intent(request, user_input=None):
                         "code": "prescription_required"
                     }
 
-            # ---------------------------
-            # Create Order
-            # ---------------------------
+            # Create order
+            result = safe_execute(
+                create_order,
+                customer_id,
+                medicine_id,
+                quantity
+            )
 
-            result = create_order(customer_id, medicine_id, quantity)
-
+            # webhook safe
             if result.get("status") == "success":
 
                 order_data = result.get("data", {})
 
-                trigger_admin_alert(
-                    event_type="order_created",
-                    payload={
-                        "order_id": order_data.get("order_id"),
-                        "customer_id": customer_id,
-                        "medicine": order_data.get("medicine"),
-                        "quantity": order_data.get("quantity"),
-                        "total_price": order_data.get("total_price"),
-                        "date": datetime.utcnow().isoformat()
-                    }
-                )
+                try:
+
+                    trigger_admin_alert(
+                        event_type="order_created",
+                        payload={
+                            "order_id": order_data.get("order_id"),
+                            "customer_id": customer_id,
+                            "medicine": order_data.get("medicine"),
+                            "quantity": order_data.get("quantity"),
+                            "total_price": order_data.get("total_price"),
+                            "date": datetime.utcnow().isoformat()
+                        }
+                    )
+
+                except Exception as e:
+                    print("Webhook error:", str(e))
 
             return result
 
@@ -150,7 +158,7 @@ def handle_intent(request, user_input=None):
             if not medicine:
                 return {"status": "error", "code": "missing_medicine"}
 
-            inventory = check_inventory(medicine)
+            inventory = safe_execute(check_inventory, medicine)
 
             if inventory.get("status") != "success":
                 return inventory
@@ -161,16 +169,21 @@ def handle_intent(request, user_input=None):
                 return {"status": "error", "code": "not_found"}
 
             item = data_list[0]
+
             medicine_name = item.get("name")
 
-            return verify_prescription(customer_id, medicine_name)
+            return safe_execute(
+                verify_prescription,
+                customer_id,
+                medicine_name
+            )
 
         # --------------------------------------------------
         # HISTORY
         # --------------------------------------------------
 
         if intent == "history":
-            return get_customer_history(customer_id)
+            return safe_execute(get_customer_history, customer_id)
 
         return {"status": "smalltalk"}
 
