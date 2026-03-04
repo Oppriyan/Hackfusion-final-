@@ -30,6 +30,7 @@ if __name__ == "__main__":
 
     # 7. Cancel order (replace 1 with real ID if needed)
     test_input("cancel order 1")
+    
 
     # 8. Smalltalk
     test_input("hello")

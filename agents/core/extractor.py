@@ -22,22 +22,45 @@ client = AzureOpenAI(
     azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
 )
 
+
 @traceable(name="Intent-Extraction")
 def extract_structured_request(user_input: str) -> StructuredRequest:
+
+
+
+    # --------------------------------------------------
+    # INPUT SANITIZATION
+    # --------------------------------------------------
+
+
     if not user_input or not isinstance(user_input, str):
+        return StructuredRequest(intent="smalltalk")
+
+    user_input = user_input.strip()
+
+    # Prevent extremely long prompts breaking system
+    if len(user_input) > 200:
         return StructuredRequest(intent="smalltalk")
 
     user_input_lower = user_input.lower()
 
     system_prompt = """
+
 You are a strict pharmacy intent extractor.
 Return ONLY valid JSON in this format:
+=======
+You are a pharmacy intent extractor.
+
+Return ONLY JSON:
+
+>>>>>>> 0df5f84b92176a09a6689039d9043554710b5cb7
 {
-  "intent": "order | inventory | history | upload_prescription | smalltalk",
-  "medicine_name": string or null,
-  "quantity": integer or null,
-  "customer_id": string or null
+"intent": "order | inventory | history | upload_prescription | smalltalk",
+"medicine_name": string or null,
+"quantity": integer or null,
+"customer_id": string or null
 }
+
 CRITICAL RULES:
 - Preserve numeric values EXACTLY as written.
 - Do NOT auto-correct quantity.
@@ -48,7 +71,12 @@ Return JSON only.
     # ==================================================
     # TRY AZURE LLM FIRST
     # ==================================================
+
+
+
+
     try:
+
         response = client.chat.completions.create(
             model=os.getenv("AZURE_OPENAI_DEPLOYMENT"),
             messages=[
@@ -59,6 +87,7 @@ Return JSON only.
         )
 
         content = response.choices[0].message.content.strip()
+
         parsed = json.loads(content)
 
         intent = parsed.get("intent", "smalltalk")
@@ -67,8 +96,13 @@ Return JSON only.
 
         raw_qty = parsed.get("quantity")
         try:
+
             quantity = int(raw_qty) if raw_qty is not None else None
         except (ValueError, TypeError):
+
+            quantity = int(quantity) if quantity else None
+        except Exception:
+
             quantity = None
 
         return StructuredRequest(
@@ -79,6 +113,7 @@ Return JSON only.
         )
 
     except Exception as e:
+
         print(f"⚠ Azure extractor failed: {e}")
 
     # ==================================================
@@ -108,3 +143,4 @@ Return JSON only.
 
     # DEFAULT
     return StructuredRequest(intent="smalltalk")
+
