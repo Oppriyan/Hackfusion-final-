@@ -1,5 +1,3 @@
-# agents/core/extractor.py
-
 import os
 import json
 import re
@@ -26,7 +24,6 @@ client = AzureOpenAI(
 
 @traceable(name="Intent-Extraction")
 def extract_structured_request(user_input: str) -> StructuredRequest:
-
     if not user_input or not isinstance(user_input, str):
         return StructuredRequest(intent="smalltalk")
 
@@ -34,16 +31,13 @@ def extract_structured_request(user_input: str) -> StructuredRequest:
 
     system_prompt = """
 You are a strict pharmacy intent extractor.
-
 Return ONLY valid JSON in this format:
-
 {
   "intent": "order | inventory | history | upload_prescription | smalltalk",
   "medicine_name": string or null,
   "quantity": integer or null,
   "customer_id": string or null
 }
-
 CRITICAL RULES:
 - Preserve numeric values EXACTLY as written.
 - Do NOT auto-correct quantity.
@@ -54,7 +48,6 @@ Return JSON only.
     # ==================================================
     # TRY AZURE LLM FIRST
     # ==================================================
-
     try:
         response = client.chat.completions.create(
             model=os.getenv("AZURE_OPENAI_DEPLOYMENT"),
@@ -69,15 +62,13 @@ Return JSON only.
         parsed = json.loads(content)
 
         intent = parsed.get("intent", "smalltalk")
-
         if intent not in ALLOWED_INTENTS:
             intent = "smalltalk"
 
-        quantity = parsed.get("quantity")
-
+        raw_qty = parsed.get("quantity")
         try:
-            quantity = int(quantity) if quantity is not None else None
-        except Exception:
+            quantity = int(raw_qty) if raw_qty is not None else None
+        except (ValueError, TypeError):
             quantity = None
 
         return StructuredRequest(
@@ -88,10 +79,8 @@ Return JSON only.
         )
 
     except Exception as e:
-        print("⚠ Azure extractor failed, using fallback parser.")
-        print("Error:", str(e))
+        print(f"⚠ Azure extractor failed: {e}")
 
-<<<<<<< HEAD
     # ==================================================
     # 🔥 FALLBACK RULE-BASED PARSER (DEMO SAFE)
     # ==================================================
@@ -99,42 +88,23 @@ Return JSON only.
     # ORDER: order 2 paracetamol
     order_match = re.search(r"order\s+(-?\d+)\s+([a-zA-Z\s]+)", user_input_lower)
     if order_match:
-        quantity = int(order_match.group(1))
-        medicine = order_match.group(2).strip()
         return StructuredRequest(
             intent="order",
-            medicine_name=medicine,
-            quantity=quantity,
-            customer_id=None
+            quantity=int(order_match.group(1)),
+            medicine_name=order_match.group(2).strip()
         )
 
     # INVENTORY
     if "inventory" in user_input_lower:
         medicine = user_input_lower.replace("check inventory", "").strip()
-        return StructuredRequest(
-            intent="inventory",
-            medicine_name=medicine,
-            quantity=None,
-            customer_id=None
-        )
+        return StructuredRequest(intent="inventory", medicine_name=medicine or None)
 
-    # HISTORY
+    # HISTORY / UPLOAD
     if "history" in user_input_lower:
         return StructuredRequest(intent="history")
-
-    # UPLOAD PRESCRIPTION
+    
     if "upload" in user_input_lower:
         return StructuredRequest(intent="upload_prescription")
 
     # DEFAULT
     return StructuredRequest(intent="smalltalk")
-=======
-    except Exception:
-        quantity = None
-    return StructuredRequest(
-    intent=intent,
-    medicine_name=parsed.get("medicine_name"),
-    quantity=quantity,
-    customer_id=parsed.get("customer_id")
-).model_dump()
->>>>>>> 9ade7a05e19af9cec6ef936db098a6666ebbf98f

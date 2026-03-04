@@ -12,18 +12,17 @@ prescription_bp = Blueprint("prescription", __name__)
 def upload_prescription_route():
 
     customer_id = request.form.get("customer_id")
-    medicine_id = request.form.get("medicine_id")
+    medicine_id = request.form.get("medicine_id")  # optional
     file = request.files.get("file")
 
-    if not customer_id or not medicine_id or not file:
+    if not customer_id or not file:
         return jsonify({
             "status": "error",
-            "message": "Missing required fields"
+            "message": "Customer ID and file required"
         }), 400
 
     response, status = upload_prescription(customer_id, medicine_id, file)
     return jsonify(response), status
-
 
 @prescription_bp.route("/approve-prescription", methods=["POST"])
 def approve_prescription_route():

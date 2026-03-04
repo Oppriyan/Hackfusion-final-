@@ -738,3 +738,72 @@ input,select,textarea{font-family:'DM Sans',sans-serif;outline:none;border:none}
 .chat-panel {
   pointer-events: auto;
 }
+/* =======================================
+   Prescription Upload Styling
+======================================= */
+
+.rx-upload-card {
+  background: white;
+  padding: 1.2rem;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+  border: 1px solid #eef1f6;
+  margin-bottom: 1.5rem;
+  max-width: 420px;
+}
+
+.rx-upload-card h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 0.8rem;
+  color: #2b2f38;
+}
+
+.rx-upload-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 0.9rem;
+}
+
+.rx-file-label {
+  background: linear-gradient(135deg, #1a6fd4, #3a8bfd);
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.rx-file-label:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(26,111,212,0.3);
+}
+
+.rx-file-name {
+  font-size: 0.75rem;
+  color: #777;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rx-upload-btn {
+  width: 100%;
+  background: #16a34a;
+  color: white;
+  border: none;
+  padding: 9px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.rx-upload-btn:hover {
+  background: #15803d;
+}

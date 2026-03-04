@@ -4,30 +4,45 @@
 
 import { API_BASE, getToken } from "./config.js";
 
+
 // ------------------------------------------------------------
-// CORE REQUEST
+// CORE REQUEST HELPER
 // ------------------------------------------------------------
 
 async function request(endpoint, options = {}) {
 
   const token = getToken();
 
-  const response = await fetch(`${API_BASE}${endpoint}`, {
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(options.headers || {})
-    },
-    ...options
-  });
+  try {
 
-  const data = await response.json();
+    const response = await fetch(`${API_BASE}${endpoint}`, {
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(options.headers || {})
+      },
+      ...options
+    });
 
-  if (!response.ok) {
-    return { status: "error", message: data.message || "Server error" };
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      return {
+        status: "error",
+        message: data.message || "Server error"
+      };
+    }
+
+    return data;
+
+  } catch (err) {
+    console.error("API Error:", err);
+    return {
+      status: "error",
+      message: "Network error"
+    };
   }
-
-  return data;
 }
+
 
 // ------------------------------------------------------------
 // AUTH
@@ -40,6 +55,7 @@ export async function loginUser(email, password) {
     body: JSON.stringify({ email, password })
   });
 }
+
 
 // ------------------------------------------------------------
 // INVENTORY
@@ -57,6 +73,7 @@ export const updateStock = (medicine, delta) =>
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ medicine, delta })
   });
+
 
 // ------------------------------------------------------------
 // ORDERS
@@ -82,6 +99,7 @@ export const cancelOrder = (order_id) =>
 export const getOrderStatus = (order_id) =>
   request(`/order-status/${order_id}`);
 
+
 // ------------------------------------------------------------
 // PRESCRIPTIONS
 // ------------------------------------------------------------
@@ -92,16 +110,31 @@ export async function uploadPrescription(customer_id, medicine_id, file) {
   const formData = new FormData();
 
   formData.append("customer_id", customer_id);
-  formData.append("medicine_id", medicine_id);
+
+  // medicine_id optional
+  if (medicine_id !== null && medicine_id !== undefined) {
+    formData.append("medicine_id", medicine_id);
+  }
+
   formData.append("file", file);
 
-  const response = await fetch(`${API_BASE}/upload-prescription`, {
-    method: "POST",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-    body: formData
-  });
+  try {
 
-  return response.json();
+    const response = await fetch(`${API_BASE}/upload-prescription`, {
+      method: "POST",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData
+    });
+
+    return await response.json();
+
+  } catch (err) {
+    console.error("Upload Error:", err);
+    return {
+      status: "error",
+      message: "Upload failed"
+    };
+  }
 }
 
 export const getPrescriptionStatus = (customer_id, medicine_id) =>
@@ -110,6 +143,7 @@ export const getPrescriptionStatus = (customer_id, medicine_id) =>
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ customer_id, medicine_id })
   });
+
 
 // ------------------------------------------------------------
 // ANALYTICS
@@ -120,6 +154,8 @@ export const getUserMetrics = (customer_id) =>
 
 export const getAdminRevenue = () =>
   request("/admin/revenue");
+
+
 // ------------------------------------------------------------
 // CHAT SUPPORT
 // ------------------------------------------------------------
@@ -127,17 +163,18 @@ export const getAdminRevenue = () =>
 export const sendSupportMessage = (message, customer_id) =>
   request("/chat-agent", {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ message, customer_id })
   });
 
 
-
 // ------------------------------------------------------------
-// VOICE
+// VOICE (VAPI WEBHOOK)
 // ------------------------------------------------------------
 
 export const sendVoiceTranscript = (payload) =>
   request("/vapi-webhook", {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
   });
